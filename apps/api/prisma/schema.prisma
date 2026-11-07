@@ -1,0 +1,291 @@
+// L'Ardoise — schéma de données.
+// Règles d'or :
+//  - tous les montants sont des entiers en FCFA (Int), jamais de flottants ;
+//  - le solde d'un client n'est jamais stocké : c'est la somme de ses lignes de grand livre ;
+//  - rien n'est supprimé : une erreur se corrige par une écriture d'annulation (REVERSAL).
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Merchant {
+  id        String   @id @default(uuid()) @db.Uuid
+  phone     String   @unique
+  shopName  String? @map("shop_name")
+  plan      String   @default("FREE")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  /// Relances automatiques (J+3, J+7, J+14) : activées par défaut, désactivables en un geste.
+  remindersEnabled Boolean @default(true) @map("reminders_enabled")
+  /// Heure d'envoi (heure de Douala), entre 8 h et 19 h.
+  reminderSendHour Int     @default(9) @map("reminder_send_hour")
+  /// Modèle personnalisé ; null = modèle par défaut. Variables : {prénom} {montant} {boutique} {lien}.
+  reminderTemplate String? @map("reminder_template")
+  reminderChannel  Channel @default(WHATSAPP) @map("reminder_channel")
+
+  customers    Customer[]
+  entries      LedgerEntry[]
+  links        PaymentLink[]
+  transactions Transaction[]
+  receipts     Receipt[]
+  reminders    Reminder[]
+
+  @@map("merchants")
+}
+
+model OtpChallenge {
+  id         String    @id @default(uuid()) @db.Uuid
+  phone      String
+  codeHash   String @map("code_hash")
+  attempts   Int       @default(0)
+  expiresAt  DateTime @map("expires_at")
+  consumedAt DateTime? @map("consumed_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@index([phone, createdAt])
+  @@map("otp_challenges")
+}
+
+model Customer {
+  id               String   @id @default(uuid()) @db.Uuid
+  /// Identifiant généré par le téléphone (création hors-ligne) : garantit l'idempotence de la synchro.
+  clientUuid       String?  @unique @db.Uuid @map("client_uuid")
+  merchantId       String   @db.Uuid @map("merchant_id")
+  name             String
+  phone            String
+  operator         Operator?
+  consentReminders Boolean  @default(true) @map("consent_reminders")
+  creditLimit      Int? @map("credit_limit")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  merchant     Merchant      @relation(fields: [merchantId], references: [id])
+  entries      LedgerEntry[]
+  links        PaymentLink[]
+  transactions Transaction[]
+  receipts     Receipt[]
+  reminders    Reminder[]
+
+  @@unique([merchantId, phone])
+  @@map("customers")
+}
+
+enum Operator {
+  MTN
+  ORANGE
+}
+
+enum EntryType {
+  DEBT
+  CASH_REPAYMENT
+  MOBILE_PAYMENT
+  REVERSAL
+}
+
+enum Direction {
+  DEBIT
+  CREDIT
+}
+
+model LedgerEntry {
+  id            String    @id @default(uuid()) @db.Uuid
+  clientUuid    String?   @unique @db.Uuid @map("client_uuid")
+  merchantId    String    @db.Uuid @map("merchant_id")
+  customerId    String    @db.Uuid @map("customer_id")
+  type          EntryType
+  /// Montant positif de l'événement métier (informatif ; la vérité est dans les lignes).
+  amount        Int
+  label         String?
+  /// Écriture annulée par celle-ci (une écriture ne peut être annulée qu'une fois).
+  reversesId    String?   @unique @db.Uuid @map("reverses_id")
+  transactionId String?   @unique @db.Uuid @map("transaction_id")
+  createdBy     String? @map("created_by")
+  /// Date réelle de l'événement (peut précéder createdAt si saisi hors-ligne).
+  occurredAt    DateTime  @default(now()) @map("occurred_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  merchant    Merchant     @relation(fields: [merchantId], references: [id])
+  customer    Customer     @relation(fields: [customerId], references: [id])
+  lines       LedgerLine[]
+  reverses    LedgerEntry? @relation("Reversal", fields: [reversesId], references: [id])
+  reversedBy  LedgerEntry? @relation("Reversal")
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+  receipt     Receipt?
+
+  @@index([customerId, occurredAt])
+  @@index([merchantId, occurredAt])
+  @@map("ledger_entries")
+}
+
+model LedgerLine {
+  id        String    @id @default(uuid()) @db.Uuid
+  entryId   String    @db.Uuid @map("entry_id")
+  account   String
+  amount    Int
+  direction Direction
+
+  entry LedgerEntry @relation(fields: [entryId], references: [id])
+
+  @@index([account])
+  @@map("ledger_lines")
+}
+
+model PaymentLink {
+  id         String    @id @default(uuid()) @db.Uuid
+  merchantId String    @db.Uuid @map("merchant_id")
+  customerId String    @db.Uuid @map("customer_id")
+  /// SHA-256 du jeton : le jeton en clair n'est jamais stocké.
+  tokenHash  String    @unique @map("token_hash")
+  expiresAt  DateTime @map("expires_at")
+  revokedAt  DateTime? @map("revoked_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  merchant     Merchant      @relation(fields: [merchantId], references: [id])
+  customer     Customer      @relation(fields: [customerId], references: [id])
+  transactions Transaction[]
+  reminders    Reminder[]
+
+  @@map("payment_links")
+}
+
+enum TxStatus {
+  CREATED
+  PENDING
+  SUCCESS
+  FAILED
+  EXPIRED
+}
+
+model Transaction {
+  id             String    @id @default(uuid()) @db.Uuid
+  /// Référence envoyée au fournisseur : clé d'idempotence.
+  reference      String    @unique
+  merchantId     String    @db.Uuid @map("merchant_id")
+  customerId     String    @db.Uuid @map("customer_id")
+  paymentLinkId  String?   @db.Uuid @map("payment_link_id")
+  provider       String
+  providerRef    String? @map("provider_ref")
+  amount         Int
+  /// Montant effectivement confirmé par le fournisseur.
+  confirmedAmount Int? @map("confirmed_amount")
+  currency       String    @default("XAF")
+  phone          String
+  operator       Operator
+  status         TxStatus  @default(CREATED)
+  failureReason  String? @map("failure_reason")
+  /// Incohérence détectée (montant, devise, attente anormalement longue) : à traiter par un humain.
+  reviewRequired Boolean   @default(false) @map("review_required")
+  lastPolledAt   DateTime? @map("last_polled_at")
+  finalizedAt    DateTime? @map("finalized_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  merchant    Merchant        @relation(fields: [merchantId], references: [id])
+  customer    Customer        @relation(fields: [customerId], references: [id])
+  paymentLink PaymentLink?    @relation(fields: [paymentLinkId], references: [id])
+  entry       LedgerEntry?
+  events      ProviderEvent[]
+
+  @@unique([provider, providerRef])
+  @@index([status, createdAt])
+  @@map("transactions")
+}
+
+enum ProviderEventKind {
+  INITIATE
+  WEBHOOK
+  STATUS_POLL
+}
+
+/// Archive brute de tout ce que les fournisseurs nous envoient : indispensable pour l'audit.
+model ProviderEvent {
+  id            String            @id @default(uuid()) @db.Uuid
+  provider      String
+  kind          ProviderEventKind
+  providerRef   String? @map("provider_ref")
+  transactionId String?           @db.Uuid @map("transaction_id")
+  signatureOk   Boolean? @map("signature_ok")
+  payload       Json
+  receivedAt    DateTime          @default(now()) @map("received_at")
+
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+
+  @@index([providerRef])
+  @@map("provider_events")
+}
+
+model Receipt {
+  id           String   @id @default(uuid()) @db.Uuid
+  number       Int      @unique @default(autoincrement())
+  entryId      String   @unique @db.Uuid @map("entry_id")
+  merchantId   String   @db.Uuid @map("merchant_id")
+  customerId   String   @db.Uuid @map("customer_id")
+  amount       Int
+  balanceAfter Int @map("balance_after")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  entry    LedgerEntry @relation(fields: [entryId], references: [id])
+  merchant Merchant    @relation(fields: [merchantId], references: [id])
+  customer Customer    @relation(fields: [customerId], references: [id])
+
+  @@map("receipts")
+}
+
+enum Channel {
+  WHATSAPP
+  SMS
+}
+
+enum ReminderStatus {
+  /// Planifiée : visible dans l'onglet « Programmées », modifiable par le commerçant.
+  SCHEDULED
+  /// Réservée par un envoi en cours (verrou optimiste : jamais deux envois du même rappel).
+  SENDING
+  SENT
+  FAILED
+  /// Ignorée par le commerçant.
+  SKIPPED
+  /// Devenue sans objet (dette réglée, consentement retiré, relances désactivées).
+  CANCELLED
+}
+
+/// Un rappel par client, par période de dette et par palier (J+3, J+7, J+14).
+model Reminder {
+  id            String         @id @default(uuid()) @db.Uuid
+  merchantId    String         @db.Uuid @map("merchant_id")
+  customerId    String         @db.Uuid @map("customer_id")
+  /// Début de la période de dette en cours (le solde est passé de 0 à positif).
+  cycleStart    DateTime       @map("cycle_start")
+  /// Palier en jours après cycleStart : 3, 7 ou 14.
+  step          Int
+  scheduledAt   DateTime       @map("scheduled_at")
+  /// Canal prévu ; sentChannel est le canal réellement utilisé (repli WhatsApp → SMS).
+  channel       Channel
+  status        ReminderStatus @default(SCHEDULED)
+  sentChannel   Channel?       @map("sent_channel")
+  /// Solde rappelé au client au moment de l'envoi.
+  amount        Int?
+  message       String?
+  paymentLinkId String?        @db.Uuid @map("payment_link_id")
+  providerRef   String?        @map("provider_ref")
+  error         String?
+  attempts      Int            @default(0)
+  sentAt        DateTime?      @map("sent_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  merchant    Merchant     @relation(fields: [merchantId], references: [id])
+  customer    Customer     @relation(fields: [customerId], references: [id])
+  paymentLink PaymentLink? @relation(fields: [paymentLinkId], references: [id])
+
+  @@unique([customerId, cycleStart, step])
+  @@index([status, scheduledAt])
+  @@index([merchantId, status])
+  @@index([customerId, sentAt])
+  @@map("reminders")
+}

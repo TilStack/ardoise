@@ -1,0 +1,8 @@
+process.env.NODE_ENV = 'test';
+process.env.DATABASE_URL = process.env.TEST_DATABASE_URL ?? 'postgresql://ardoise:ardoise@localhost:5432/ardoise_test';
+process.env.JWT_SECRET = 'test-secret-test-secret-test-secret';
+process.env.WEBHOOK_SECRET = 'test-webhook-secret';
+process.env.PAYMENT_PROVIDER = 'sandbox';
+process.env.PUBLIC_PAY_URL = 'https://pay.test/p';
+process.env.OTP_DEV_ECHO = 'true';
+process.env.ENABLE_JOBS = 'false';
