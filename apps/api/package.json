@@ -8,6 +8,7 @@
     "dev": "node --env-file=.env -r ts-node/register/transpile-only src/main.ts",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
+    "pretest": "pnpm --filter @ardoise/pay-core build",
     "test": "jest --runInBand"
   },
   "dependencies": {
