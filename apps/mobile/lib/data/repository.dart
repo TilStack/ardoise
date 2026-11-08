@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:uuid/uuid.dart';
 
 import '../core/api_client.dart';
@@ -80,9 +81,39 @@ class ArdoiseRepository extends ChangeNotifier {
   DashboardData dashboard = const DashboardData();
   String? shopName;
 
+  /// Numéro du compte (format +237…), affiché dans Profil.
+  String? phone;
+
   /// 'MERCHANT' ou 'PERSONAL' ; null tant que le choix n'a pas été fait.
   String? profileType;
   bool get isPersonal => profileType == 'PERSONAL';
+
+  /// Apparence : clair, sombre ou celle du téléphone. Mémorisée sur l'appareil.
+  ThemeMode themeMode = ThemeMode.system;
+  Future<void> setThemeMode(ThemeMode mode) async {
+    themeMode = mode;
+    notifyListeners();
+    await db.set('theme_mode', mode.name);
+  }
+
+  /// Supprime définitivement le compte (serveur), puis efface toutes les données du téléphone.
+  /// Le serveur refuse tant que des comptes ne sont pas réglés.
+  Future<void> deleteAccount() async {
+    if (pendingCount > 0) {
+      await sync(); // les dernières saisies doivent être connues du serveur avant de juger les soldes
+    }
+    await api.deleteAccount();
+    await logout();
+  }
+
+  /// Choix fait sur l'écran d'accueil, avant la connexion :
+  /// 'MERCHANT', 'PERSONAL' ou 'EXISTING' (« j'ai déjà un compte »). null = écran d'accueil.
+  String? welcomeChoice;
+  void setWelcomeChoice(String? choice) {
+    welcomeChoice = choice;
+    notifyListeners();
+  }
+
   Vocab get vocab => Vocab(personal: isPersonal);
   int pendingCount = 0;
   bool online = true;
@@ -92,6 +123,12 @@ class ArdoiseRepository extends ChangeNotifier {
   Future<void> load() async {
     shopName = await db.get('shop_name');
     profileType = await db.get('profile_type');
+    phone = await db.get('account_phone');
+    final savedTheme = await db.get('theme_mode');
+    themeMode = ThemeMode.values.firstWhere(
+      (m) => m.name == savedTheme,
+      orElse: () => ThemeMode.system,
+    );
     final d = await db.get('dashboard');
     if (d != null) {
       dashboard = DashboardData.fromJson(jsonDecode(d) as Map<String, dynamic>);
@@ -298,6 +335,11 @@ class ArdoiseRepository extends ChangeNotifier {
     final d = await api.dashboard();
     dashboard = DashboardData.fromJson(d);
     await db.set('dashboard', jsonEncode(dashboard.toJson()));
+    try {
+      await refreshProfile(); // numéro et nom à jour pour l'écran Profil
+    } on ApiException {
+      // non bloquant : la synchro des données a réussi
+    }
   }
 
   // ---------------- En ligne uniquement ----------------
@@ -337,9 +379,13 @@ class ArdoiseRepository extends ChangeNotifier {
   }
 
   /// Profil reçu du serveur à la connexion ou au démarrage (null = pas encore choisi).
-  Future<void> setProfileFromServer(String? type) async {
+  Future<void> setProfileFromServer(String? type, {String? phone}) async {
     profileType = type;
     await db.set('profile_type', type);
+    if (phone != null) {
+      this.phone = phone;
+      await db.set('account_phone', phone);
+    }
     notifyListeners();
   }
 
@@ -359,7 +405,10 @@ class ArdoiseRepository extends ChangeNotifier {
       shopName = name;
       await db.set('shop_name', name);
     }
-    await setProfileFromServer(me['profileType'] as String?);
+    await setProfileFromServer(
+      me['profileType'] as String?,
+      phone: me['phone'] as String?,
+    );
   }
 
   Future<void> logout() async {
@@ -368,6 +417,8 @@ class ArdoiseRepository extends ChangeNotifier {
     dashboard = const DashboardData();
     shopName = null;
     profileType = null;
+    phone = null;
+    welcomeChoice = null;
     pendingCount = 0;
     notifyListeners();
   }

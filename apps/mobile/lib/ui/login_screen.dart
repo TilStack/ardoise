@@ -49,7 +49,10 @@ class _LoginScreenState extends State<LoginScreen> {
       final merchant = r['merchant'] as Map;
       final shop = merchant['shopName'] as String?;
       if (shop != null) await repo.setShopName(shop);
-      await repo.setProfileFromServer(merchant['profileType'] as String?);
+      await repo.setProfileFromServer(
+        merchant['profileType'] as String?,
+        phone: merchant['phone'] as String?,
+      );
       await repo.sync();
     } on ApiException catch (e) {
       setState(() => _error = e.message);
@@ -66,6 +69,25 @@ class _LoginScreenState extends State<LoginScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
           children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: _busy
+                    ? null
+                    : () => context.read<ArdoiseRepository>().setWelcomeChoice(
+                        null,
+                      ),
+                icon: const Icon(Icons.arrow_back, size: 18),
+                label: Text(switch (context
+                    .watch<ArdoiseRepository>()
+                    .welcomeChoice) {
+                  'MERCHANT' => 'Pour ma boutique · changer',
+                  'PERSONAL' => 'Pour mes prêts · changer',
+                  _ => 'J’ai déjà un compte · changer',
+                }),
+              ),
+            ),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Container(
@@ -194,7 +216,10 @@ class _ChalkBoard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(a, style: style),
+          Flexible(
+            child: Text(a, style: style, overflow: TextOverflow.ellipsis),
+          ),
+          const SizedBox(width: 12),
           Text(b, style: style),
         ],
       ),

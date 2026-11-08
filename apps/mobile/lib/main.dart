@@ -10,6 +10,7 @@ import 'data/repository.dart';
 import 'ui/home.dart';
 import 'ui/login_screen.dart';
 import 'ui/profile_choice_screen.dart';
+import 'ui/welcome_screen.dart';
 import 'ui/theme.dart';
 
 Future<void> main() async {
@@ -72,21 +73,36 @@ class ArdoiseApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: repo),
         ChangeNotifierProvider.value(value: session),
       ],
-      child: MaterialApp(
-        title: "L'Ardoise",
-        debugShowCheckedModeBanner: false,
-        theme: buildTheme(),
-        locale: const Locale('fr'),
-        supportedLocales: const [Locale('fr'), Locale('en')],
-        localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        home: Consumer<Session>(
-          builder: (_, s, __) => !s.loggedIn
-              ? const LoginScreen()
-              : Consumer<ArdoiseRepository>(
-                  builder: (_, r, __) => r.profileType == null
-                      ? const ProfileChoiceScreen()
-                      : const HomeShell(),
-                ),
+      child: ListenableBuilder(
+        listenable: repo,
+        builder: (_, _) => MaterialApp(
+          title: "L'Ardoise",
+          debugShowCheckedModeBanner: false,
+          theme: buildTheme(),
+          darkTheme: buildTheme(dark: true),
+          themeMode: repo.themeMode,
+          locale: const Locale('fr'),
+          supportedLocales: const [Locale('fr'), Locale('en')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          home: Consumer<Session>(
+            builder: (_, s, __) => Consumer<ArdoiseRepository>(
+              builder: (_, r, __) {
+                if (!s.loggedIn) {
+                  // Le profil se choisit avant la saisie du numéro.
+                  return r.welcomeChoice == null
+                      ? const WelcomeScreen()
+                      : const LoginScreen();
+                }
+                if (r.profileType != null) return const HomeShell();
+                final chosen = r.welcomeChoice;
+                return ProfileChoiceScreen(
+                  initialType: chosen == 'MERCHANT' || chosen == 'PERSONAL'
+                      ? chosen
+                      : null,
+                );
+              },
+            ),
+          ),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/api_client.dart';
 import '../core/money.dart';
 import '../data/repository.dart';
 import '../main.dart';
@@ -49,8 +50,6 @@ class _HomeShellState extends State<HomeShell> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
-        backgroundColor: Colors.white,
-        indicatorColor: AppColors.field,
         onDestinationSelected: (i) => setState(() => _tab = i),
         destinations: [
           const NavigationDestination(
@@ -365,9 +364,9 @@ class _QuickAction extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardSurface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.line),
+          border: Border.all(color: context.hairline),
         ),
         child: Column(
           children: [
@@ -414,8 +413,8 @@ class CustomerTile extends StatelessWidget {
       ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: Color(0xFFF1EDE5))),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: context.hairline)),
         ),
         child: Row(
           children: [
@@ -448,7 +447,7 @@ class CustomerTile extends StatelessWidget {
                   formatAmount(c.balance.abs()),
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    color: c.isLate ? AppColors.red : AppColors.ink,
+                    color: c.isLate ? AppColors.red : context.inkColor,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -556,9 +555,139 @@ class _CustomersScreenState extends State<CustomersScreen> {
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  Future<void> _editName(BuildContext context, ArdoiseRepository r) async {
+    final ctrl = TextEditingController(text: r.shopName);
+    final name = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(r.vocab.nameTitle),
+        content: TextField(controller: ctrl, autofocus: true),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, ctrl.text),
+            child: const Text('Enregistrer'),
+          ),
+        ],
+      ),
+    );
+    if (name != null && name.trim().length >= 2) {
+      await r.setShopName(name.trim());
+    }
+  }
+
+  Future<void> _logout(BuildContext context, ArdoiseRepository r) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Se déconnecter ?'),
+        content: Text(
+          r.pendingCount > 0
+              ? '${r.pendingCount} saisie(s) ne sont pas encore synchronisées : reconnectez-vous d’abord au réseau, sinon elles seront perdues.'
+              : 'Vos données restent sur le serveur : vous les retrouverez en vous reconnectant.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Se déconnecter',
+              style: TextStyle(color: AppColors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && context.mounted) {
+      await context.read<Session>().signOut(r);
+    }
+  }
+
+  Future<void> _deleteAccount(BuildContext context, ArdoiseRepository r) async {
+    final v = r.vocab;
+    final unsettled = r.customers.where((c) => c.balance != 0).length;
+    if (unsettled > 0) {
+      await showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Suppression impossible'),
+          content: Text(
+            '$unsettled ${v.person}${unsettled > 1 ? 's ont' : ' a'} encore un compte non réglé. '
+            'Soldez tous les comptes avant de supprimer le vôtre.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Compris'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    final ctrl = TextEditingController();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, set) => AlertDialog(
+          title: const Text('Supprimer mon compte ?'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Cette action est définitive. Toutes vos données seront effacées du serveur et du téléphone : '
+                '${v.people.toLowerCase()}, historique, reçus et relances.\n\n'
+                'Tapez SUPPRIMER pour confirmer.',
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: ctrl,
+                onChanged: (_) => set(() {}),
+                textCapitalization: TextCapitalization.characters,
+                decoration: const InputDecoration(hintText: 'SUPPRIMER'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: ctrl.text.trim().toUpperCase() == 'SUPPRIMER'
+                  ? () => Navigator.pop(ctx, true)
+                  : null,
+              child: const Text(
+                'Supprimer définitivement',
+                style: TextStyle(color: AppColors.red),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (ok != true || !context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final session = context.read<Session>();
+    try {
+      await r.deleteAccount();
+      await session.signOut(r);
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Votre compte a été supprimé.')),
+      );
+    } on ApiException catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final r = context.watch<ArdoiseRepository>();
+    final name = r.shopName;
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
@@ -568,38 +697,119 @@ class ProfileScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         AppCard(
-          child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(r.shopName ?? r.vocab.nameTitle),
-            subtitle: Text(r.vocab.nameHelp),
-            trailing: const Icon(Icons.edit_outlined),
-            onTap: () async {
-              final ctrl = TextEditingController(text: r.shopName);
-              final name = await showDialog<String>(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: Text(r.vocab.nameTitle),
-                  content: TextField(controller: ctrl, autofocus: true),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx, ctrl.text),
-                      child: const Text('Enregistrer'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Avatar(
+                    initials(name ?? '?'),
+                    fg: AppColors.orange,
+                    bg: AppColors.orangeSoft,
+                    size: 48,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name ?? r.vocab.nameTitle,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 17,
+                          ),
+                        ),
+                        if (r.phone != null)
+                          Text(
+                            '+237 ${displayPhone(r.phone!)}',
+                            style: const TextStyle(
+                              color: AppColors.muted,
+                              fontSize: 13,
+                            ),
+                          ),
+                      ],
                     ),
-                  ],
-                ),
-              );
-              if (name != null && name.trim().length >= 2) {
-                await r.setShopName(name.trim());
-              }
-            },
+                  ),
+                  IconButton(
+                    tooltip: 'Modifier le nom',
+                    icon: const Icon(Icons.edit_outlined),
+                    onPressed: () => _editName(context, r),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Icon(
+                    r.isPersonal
+                        ? Icons.handshake_outlined
+                        : Icons.storefront_outlined,
+                    size: 18,
+                    color: AppColors.muted,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      r.isPersonal
+                          ? 'Profil : Particulier (prêts)'
+                          : 'Profil : Commerçant (boutique)',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                r.vocab.nameHelp,
+                style: const TextStyle(color: AppColors.muted, fontSize: 12),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
+        const Text(
+          'Apparence',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 8),
+        SegmentedButton<ThemeMode>(
+          showSelectedIcon: false,
+          segments: const [
+            ButtonSegment(
+              value: ThemeMode.light,
+              icon: Icon(Icons.light_mode_outlined, size: 18),
+              label: Text('Clair'),
+            ),
+            ButtonSegment(
+              value: ThemeMode.dark,
+              icon: Icon(Icons.dark_mode_outlined, size: 18),
+              label: Text('Sombre'),
+            ),
+            ButtonSegment(
+              value: ThemeMode.system,
+              icon: Icon(Icons.brightness_auto_outlined, size: 18),
+              label: Text('Auto'),
+            ),
+          ],
+          selected: {r.themeMode},
+          onSelectionChanged: (s) => r.setThemeMode(s.first),
+        ),
+        const SizedBox(height: 24),
         OutlinedButton.icon(
-          onPressed: () => context.read<Session>().signOut(r),
+          onPressed: () => _logout(context, r),
           icon: const Icon(Icons.logout, color: AppColors.red),
           label: const Text(
             'Se déconnecter',
+            style: TextStyle(color: AppColors.red),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextButton.icon(
+          onPressed: () => _deleteAccount(context, r),
+          icon: const Icon(Icons.delete_forever_outlined, color: AppColors.red),
+          label: const Text(
+            'Supprimer mon compte',
             style: TextStyle(color: AppColors.red),
           ),
         ),

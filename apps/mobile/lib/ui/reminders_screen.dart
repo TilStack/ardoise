@@ -150,7 +150,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
       child: Column(
         children: [
           for (var i = 0; i < items.length; i++) ...[
-            if (i > 0) const Divider(height: 1, color: AppColors.line),
+            if (i > 0) Divider(height: 1, color: context.hairline),
             _ReminderTile(
               item: items[i],
               tab: _tab,
@@ -376,7 +376,10 @@ class _RemindersScreenState extends State<RemindersScreen> {
                         url: 'ardoise.cm/p/…',
                         suffix: d.settings.optOutSuffix,
                       ),
-                      style: const TextStyle(fontSize: 13),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.ink,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -499,7 +502,7 @@ class _Tabs extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.field,
+        color: context.fieldTint,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -512,7 +515,9 @@ class _Tabs extends StatelessWidget {
                   duration: const Duration(milliseconds: 150),
                   padding: const EdgeInsets.symmetric(vertical: 9),
                   decoration: BoxDecoration(
-                    color: t == current ? Colors.white : Colors.transparent,
+                    color: t == current
+                        ? context.cardSurface
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: FittedBox(

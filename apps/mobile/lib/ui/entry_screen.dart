@@ -360,7 +360,10 @@ Future<void> sendPaymentLink(BuildContext context, Customer c) async {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(message, style: const TextStyle(height: 1.45)),
+              child: Text(
+                message,
+                style: const TextStyle(height: 1.45, color: AppColors.ink),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -412,10 +415,10 @@ class _Key extends StatelessWidget {
   Widget build(BuildContext context) => SizedBox(
     height: 46,
     child: Material(
-      color: Colors.white,
+      color: context.cardSurface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: AppColors.line),
+        side: BorderSide(color: context.hairline),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),

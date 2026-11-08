@@ -4,17 +4,21 @@ import 'package:provider/provider.dart';
 import '../core/api_client.dart';
 import '../data/repository.dart';
 import '../main.dart';
+import 'profile_option.dart';
 import 'theme.dart';
 
 /// Première connexion : « Commerçant » ou « Particulier ». Détermine les mots de l'app et les messages de relance.
 class ProfileChoiceScreen extends StatefulWidget {
-  const ProfileChoiceScreen({super.key});
+  const ProfileChoiceScreen({super.key, this.initialType});
+
+  /// Profil déjà choisi sur l'écran d'accueil, avant la connexion : il ne reste qu'à saisir le nom.
+  final String? initialType;
   @override
   State<ProfileChoiceScreen> createState() => _ProfileChoiceScreenState();
 }
 
 class _ProfileChoiceScreenState extends State<ProfileChoiceScreen> {
-  String? _type;
+  late String? _type = widget.initialType;
   final _name = TextEditingController();
   String? _error;
   bool _busy = false;
@@ -51,49 +55,14 @@ class _ProfileChoiceScreenState extends State<ProfileChoiceScreen> {
     }
   }
 
-  Widget _option(String type, IconData icon, String title, String subtitle) {
-    final selected = _type == type;
-    return InkWell(
-      borderRadius: BorderRadius.circular(18),
-      onTap: () => setState(() => _type = type),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.orangeSoft : Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: selected ? AppColors.orange : AppColors.line,
-            width: selected ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 30, color: AppColors.slate),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(color: AppColors.muted, height: 1.3),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget _option(String type, IconData icon, String title, String subtitle) =>
+      ProfileOption(
+        icon: icon,
+        title: title,
+        subtitle: subtitle,
+        selected: _type == type,
+        onTap: () => setState(() => _type = type),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -103,23 +72,25 @@ class _ProfileChoiceScreenState extends State<ProfileChoiceScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
           children: [
-            const Text(
-              'Vous utilisez L’Ardoise…',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
+            Text(
+              widget.initialType == null
+                  ? 'Vous utilisez L’Ardoise…'
+                  : 'Dernière étape',
+              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 20),
             _option(
               'MERCHANT',
               Icons.storefront_outlined,
-              'Pour ma boutique',
-              'Mes clients achètent à crédit et me paient plus tard.',
+              profileMerchantTitle,
+              profileMerchantText,
             ),
             const SizedBox(height: 12),
             _option(
               'PERSONAL',
               Icons.handshake_outlined,
-              'Pour mes prêts',
-              'J’ai prêté de l’argent à des proches ou des connaissances.',
+              profilePersonalTitle,
+              profilePersonalText,
             ),
             const SizedBox(height: 24),
             if (_type != null) ...[

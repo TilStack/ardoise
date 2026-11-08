@@ -125,6 +125,7 @@ class LocalDb {
   Future<void> clearAll() async {
     await db.delete('customers');
     await db.delete('outbox');
-    await db.delete('kv');
+    // Le thème est une préférence de l'appareil : il survit à la déconnexion.
+    await db.delete('kv', where: 'k != ?', whereArgs: ['theme_mode']);
   }
 }

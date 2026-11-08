@@ -93,6 +93,8 @@ class ApiClient {
       await _send('GET', '/customers');
   Future<Map<String, dynamic>> customer(String id) async =>
       await _send('GET', '/customers/$id');
+  Future<Map<String, dynamic>> deleteAccount() async =>
+      await _send('DELETE', '/me');
   Future<Map<String, dynamic>> archiveCustomer(String id) async =>
       await _send('POST', '/customers/$id/archive', {});
   Future<Map<String, dynamic>> createCustomer({

@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import { Body, ConflictException, Controller, Delete, Get, HttpCode, NotFoundException, Patch, UseGuards } from '@nestjs/common';
 import { IsIn, IsOptional, IsString, Length } from 'class-validator';
 import { JwtGuard, MerchantId } from '../auth/auth';
+import { LedgerService } from '../ledger/ledger.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CustomerQueries } from './customers';
 
@@ -16,11 +17,52 @@ export class MeController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly customers: CustomerQueries,
+    private readonly ledger: LedgerService,
   ) {}
 
   @Get('me')
-  me(@MerchantId() merchantId: string) {
-    return this.prisma.merchant.findUniqueOrThrow({ where: { id: merchantId } });
+  async me(@MerchantId() merchantId: string) {
+    const merchant = await this.prisma.merchant.findUnique({ where: { id: merchantId } });
+    if (!merchant) throw new NotFoundException('Compte introuvable');
+    return merchant;
+  }
+
+  /**
+   * Suppression définitive du compte et de toutes ses données (clients, écritures, reçus, relances).
+   * Refusée tant que des comptes ne sont pas réglés : un solde non nul ou un paiement mobile en cours.
+   */
+  @Delete('me')
+  @HttpCode(200)
+  async deleteAccount(@MerchantId() merchantId: string) {
+    const merchant = await this.prisma.merchant.findUnique({ where: { id: merchantId } });
+    if (!merchant) throw new NotFoundException('Compte introuvable');
+
+    const balances = await this.ledger.balancesForMerchant(merchantId);
+    const unsettled = [...balances.values()].filter((b) => b !== 0).length;
+    if (unsettled > 0) {
+      throw new ConflictException(
+        `Suppression impossible : ${unsettled} compte${unsettled > 1 ? 's' : ''} non réglé${unsettled > 1 ? 's' : ''}. Soldez-les d’abord.`,
+      );
+    }
+    const pending = await this.prisma.transaction.count({ where: { merchantId, status: 'PENDING' } });
+    if (pending > 0) {
+      throw new ConflictException('Suppression impossible : un paiement mobile est encore en cours. Réessayez dans quelques minutes.');
+    }
+
+    // Ordre imposé par les clés étrangères, le tout dans une seule transaction.
+    await this.prisma.$transaction([
+      this.prisma.reminder.deleteMany({ where: { merchantId } }),
+      this.prisma.receipt.deleteMany({ where: { merchantId } }),
+      this.prisma.providerEvent.deleteMany({ where: { transaction: { merchantId } } }),
+      this.prisma.ledgerLine.deleteMany({ where: { entry: { merchantId } } }),
+      this.prisma.ledgerEntry.deleteMany({ where: { merchantId } }),
+      this.prisma.transaction.deleteMany({ where: { merchantId } }),
+      this.prisma.paymentLink.deleteMany({ where: { merchantId } }),
+      this.prisma.customer.deleteMany({ where: { merchantId } }),
+      this.prisma.otpChallenge.deleteMany({ where: { phone: merchant.phone } }),
+      this.prisma.merchant.delete({ where: { id: merchantId } }),
+    ]);
+    return { deleted: true };
   }
 
   @Patch('me')
