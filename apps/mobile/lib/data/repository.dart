@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/api_client.dart';
+import '../core/vocab.dart';
 import 'local_db.dart';
 
 enum EntryKind { debt, cash }
@@ -78,6 +79,11 @@ class ArdoiseRepository extends ChangeNotifier {
   List<Customer> customers = [];
   DashboardData dashboard = const DashboardData();
   String? shopName;
+
+  /// 'MERCHANT' ou 'PERSONAL' ; null tant que le choix n'a pas été fait.
+  String? profileType;
+  bool get isPersonal => profileType == 'PERSONAL';
+  Vocab get vocab => Vocab(personal: isPersonal);
   int pendingCount = 0;
   bool online = true;
   bool syncing = false;
@@ -85,6 +91,7 @@ class ArdoiseRepository extends ChangeNotifier {
 
   Future<void> load() async {
     shopName = await db.get('shop_name');
+    profileType = await db.get('profile_type');
     final d = await db.get('dashboard');
     if (d != null) {
       dashboard = DashboardData.fromJson(jsonDecode(d) as Map<String, dynamic>);
@@ -297,6 +304,15 @@ class ArdoiseRepository extends ChangeNotifier {
 
   Future<Map<String, dynamic>> customerDetail(String id) => api.customer(id);
 
+  /// Archive un client soldé (en ligne). L'historique est conservé côté serveur ;
+  /// le client disparaît des listes à la prochaine synchro.
+  Future<void> archiveCustomer(String id) async {
+    if (pendingCount > 0) {
+      await sync(); // le serveur doit connaître toutes les saisies avant de juger le solde
+    }
+    await api.archiveCustomer(id);
+  }
+
   Future<void> cancelEntry(String entryId) async {
     await api.cancelEntry(entryId, _uuid.v4(), 'Annulation depuis l’app');
     await sync();
@@ -314,10 +330,36 @@ class ArdoiseRepository extends ChangeNotifier {
     await db.set('shop_name', name);
     notifyListeners();
     try {
-      await api.updateMe(name);
+      await api.updateMe(shopName: name);
     } on ApiException {
       // réessayé au prochain lancement
     }
+  }
+
+  /// Profil reçu du serveur à la connexion ou au démarrage (null = pas encore choisi).
+  Future<void> setProfileFromServer(String? type) async {
+    profileType = type;
+    await db.set('profile_type', type);
+    notifyListeners();
+  }
+
+  /// Premier choix du profil : doit réussir en ligne, le serveur choisit les modèles de messages.
+  Future<void> chooseProfile(String type, String name) async {
+    await api.updateMe(profileType: type, shopName: name);
+    shopName = name;
+    await db.set('shop_name', name);
+    await setProfileFromServer(type);
+  }
+
+  /// Relit le profil sur le serveur (comptes créés avant l'arrivée des profils).
+  Future<void> refreshProfile() async {
+    final me = await api.me();
+    final name = me['shopName'] as String?;
+    if (name != null) {
+      shopName = name;
+      await db.set('shop_name', name);
+    }
+    await setProfileFromServer(me['profileType'] as String?);
   }
 
   Future<void> logout() async {
@@ -325,6 +367,7 @@ class ArdoiseRepository extends ChangeNotifier {
     customers = [];
     dashboard = const DashboardData();
     shopName = null;
+    profileType = null;
     pendingCount = 0;
     notifyListeners();
   }

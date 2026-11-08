@@ -44,6 +44,7 @@ export type CustomerMinAggregateOutputType = {
   consentReminders: boolean | null
   creditLimit: number | null
   createdAt: Date | null
+  archivedAt: Date | null
 }
 
 export type CustomerMaxAggregateOutputType = {
@@ -56,6 +57,7 @@ export type CustomerMaxAggregateOutputType = {
   consentReminders: boolean | null
   creditLimit: number | null
   createdAt: Date | null
+  archivedAt: Date | null
 }
 
 export type CustomerCountAggregateOutputType = {
@@ -68,6 +70,7 @@ export type CustomerCountAggregateOutputType = {
   consentReminders: number
   creditLimit: number
   createdAt: number
+  archivedAt: number
   _all: number
 }
 
@@ -90,6 +93,7 @@ export type CustomerMinAggregateInputType = {
   consentReminders?: true
   creditLimit?: true
   createdAt?: true
+  archivedAt?: true
 }
 
 export type CustomerMaxAggregateInputType = {
@@ -102,6 +106,7 @@ export type CustomerMaxAggregateInputType = {
   consentReminders?: true
   creditLimit?: true
   createdAt?: true
+  archivedAt?: true
 }
 
 export type CustomerCountAggregateInputType = {
@@ -114,6 +119,7 @@ export type CustomerCountAggregateInputType = {
   consentReminders?: true
   creditLimit?: true
   createdAt?: true
+  archivedAt?: true
   _all?: true
 }
 
@@ -213,6 +219,7 @@ export type CustomerGroupByOutputType = {
   consentReminders: boolean
   creditLimit: number | null
   createdAt: Date
+  archivedAt: Date | null
   _count: CustomerCountAggregateOutputType | null
   _avg: CustomerAvgAggregateOutputType | null
   _sum: CustomerSumAggregateOutputType | null
@@ -248,6 +255,7 @@ export type CustomerWhereInput = {
   consentReminders?: Prisma.BoolFilter<"Customer"> | boolean
   creditLimit?: Prisma.IntNullableFilter<"Customer"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
+  archivedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   merchant?: Prisma.XOR<Prisma.MerchantScalarRelationFilter, Prisma.MerchantWhereInput>
   entries?: Prisma.LedgerEntryListRelationFilter
   links?: Prisma.PaymentLinkListRelationFilter
@@ -266,6 +274,7 @@ export type CustomerOrderByWithRelationInput = {
   consentReminders?: Prisma.SortOrder
   creditLimit?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   merchant?: Prisma.MerchantOrderByWithRelationInput
   entries?: Prisma.LedgerEntryOrderByRelationAggregateInput
   links?: Prisma.PaymentLinkOrderByRelationAggregateInput
@@ -288,6 +297,7 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   consentReminders?: Prisma.BoolFilter<"Customer"> | boolean
   creditLimit?: Prisma.IntNullableFilter<"Customer"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
+  archivedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   merchant?: Prisma.XOR<Prisma.MerchantScalarRelationFilter, Prisma.MerchantWhereInput>
   entries?: Prisma.LedgerEntryListRelationFilter
   links?: Prisma.PaymentLinkListRelationFilter
@@ -306,6 +316,7 @@ export type CustomerOrderByWithAggregationInput = {
   consentReminders?: Prisma.SortOrder
   creditLimit?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CustomerCountOrderByAggregateInput
   _avg?: Prisma.CustomerAvgOrderByAggregateInput
   _max?: Prisma.CustomerMaxOrderByAggregateInput
@@ -326,6 +337,7 @@ export type CustomerScalarWhereWithAggregatesInput = {
   consentReminders?: Prisma.BoolWithAggregatesFilter<"Customer"> | boolean
   creditLimit?: Prisma.IntNullableWithAggregatesFilter<"Customer"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
+  archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Customer"> | Date | string | null
 }
 
 export type CustomerCreateInput = {
@@ -337,6 +349,7 @@ export type CustomerCreateInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   merchant: Prisma.MerchantCreateNestedOneWithoutCustomersInput
   entries?: Prisma.LedgerEntryCreateNestedManyWithoutCustomerInput
   links?: Prisma.PaymentLinkCreateNestedManyWithoutCustomerInput
@@ -355,6 +368,7 @@ export type CustomerUncheckedCreateInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   entries?: Prisma.LedgerEntryUncheckedCreateNestedManyWithoutCustomerInput
   links?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutCustomerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCustomerInput
@@ -371,6 +385,7 @@ export type CustomerUpdateInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   merchant?: Prisma.MerchantUpdateOneRequiredWithoutCustomersNestedInput
   entries?: Prisma.LedgerEntryUpdateManyWithoutCustomerNestedInput
   links?: Prisma.PaymentLinkUpdateManyWithoutCustomerNestedInput
@@ -389,6 +404,7 @@ export type CustomerUncheckedUpdateInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   entries?: Prisma.LedgerEntryUncheckedUpdateManyWithoutCustomerNestedInput
   links?: Prisma.PaymentLinkUncheckedUpdateManyWithoutCustomerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCustomerNestedInput
@@ -406,6 +422,7 @@ export type CustomerCreateManyInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
 }
 
 export type CustomerUpdateManyMutationInput = {
@@ -417,6 +434,7 @@ export type CustomerUpdateManyMutationInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CustomerUncheckedUpdateManyInput = {
@@ -429,6 +447,7 @@ export type CustomerUncheckedUpdateManyInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CustomerListRelationFilter = {
@@ -456,6 +475,7 @@ export type CustomerCountOrderByAggregateInput = {
   consentReminders?: Prisma.SortOrder
   creditLimit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
 }
 
 export type CustomerAvgOrderByAggregateInput = {
@@ -472,6 +492,7 @@ export type CustomerMaxOrderByAggregateInput = {
   consentReminders?: Prisma.SortOrder
   creditLimit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
 }
 
 export type CustomerMinOrderByAggregateInput = {
@@ -484,6 +505,7 @@ export type CustomerMinOrderByAggregateInput = {
   consentReminders?: Prisma.SortOrder
   creditLimit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
 }
 
 export type CustomerSumOrderByAggregateInput = {
@@ -628,6 +650,7 @@ export type CustomerCreateWithoutMerchantInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   entries?: Prisma.LedgerEntryCreateNestedManyWithoutCustomerInput
   links?: Prisma.PaymentLinkCreateNestedManyWithoutCustomerInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutCustomerInput
@@ -644,6 +667,7 @@ export type CustomerUncheckedCreateWithoutMerchantInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   entries?: Prisma.LedgerEntryUncheckedCreateNestedManyWithoutCustomerInput
   links?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutCustomerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCustomerInput
@@ -690,6 +714,7 @@ export type CustomerScalarWhereInput = {
   consentReminders?: Prisma.BoolFilter<"Customer"> | boolean
   creditLimit?: Prisma.IntNullableFilter<"Customer"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
+  archivedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
 }
 
 export type CustomerCreateWithoutEntriesInput = {
@@ -701,6 +726,7 @@ export type CustomerCreateWithoutEntriesInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   merchant: Prisma.MerchantCreateNestedOneWithoutCustomersInput
   links?: Prisma.PaymentLinkCreateNestedManyWithoutCustomerInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutCustomerInput
@@ -718,6 +744,7 @@ export type CustomerUncheckedCreateWithoutEntriesInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   links?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutCustomerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCustomerInput
   receipts?: Prisma.ReceiptUncheckedCreateNestedManyWithoutCustomerInput
@@ -749,6 +776,7 @@ export type CustomerUpdateWithoutEntriesInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   merchant?: Prisma.MerchantUpdateOneRequiredWithoutCustomersNestedInput
   links?: Prisma.PaymentLinkUpdateManyWithoutCustomerNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutCustomerNestedInput
@@ -766,6 +794,7 @@ export type CustomerUncheckedUpdateWithoutEntriesInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   links?: Prisma.PaymentLinkUncheckedUpdateManyWithoutCustomerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCustomerNestedInput
   receipts?: Prisma.ReceiptUncheckedUpdateManyWithoutCustomerNestedInput
@@ -781,6 +810,7 @@ export type CustomerCreateWithoutLinksInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   merchant: Prisma.MerchantCreateNestedOneWithoutCustomersInput
   entries?: Prisma.LedgerEntryCreateNestedManyWithoutCustomerInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutCustomerInput
@@ -798,6 +828,7 @@ export type CustomerUncheckedCreateWithoutLinksInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   entries?: Prisma.LedgerEntryUncheckedCreateNestedManyWithoutCustomerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCustomerInput
   receipts?: Prisma.ReceiptUncheckedCreateNestedManyWithoutCustomerInput
@@ -829,6 +860,7 @@ export type CustomerUpdateWithoutLinksInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   merchant?: Prisma.MerchantUpdateOneRequiredWithoutCustomersNestedInput
   entries?: Prisma.LedgerEntryUpdateManyWithoutCustomerNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutCustomerNestedInput
@@ -846,6 +878,7 @@ export type CustomerUncheckedUpdateWithoutLinksInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   entries?: Prisma.LedgerEntryUncheckedUpdateManyWithoutCustomerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCustomerNestedInput
   receipts?: Prisma.ReceiptUncheckedUpdateManyWithoutCustomerNestedInput
@@ -861,6 +894,7 @@ export type CustomerCreateWithoutTransactionsInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   merchant: Prisma.MerchantCreateNestedOneWithoutCustomersInput
   entries?: Prisma.LedgerEntryCreateNestedManyWithoutCustomerInput
   links?: Prisma.PaymentLinkCreateNestedManyWithoutCustomerInput
@@ -878,6 +912,7 @@ export type CustomerUncheckedCreateWithoutTransactionsInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   entries?: Prisma.LedgerEntryUncheckedCreateNestedManyWithoutCustomerInput
   links?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutCustomerInput
   receipts?: Prisma.ReceiptUncheckedCreateNestedManyWithoutCustomerInput
@@ -909,6 +944,7 @@ export type CustomerUpdateWithoutTransactionsInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   merchant?: Prisma.MerchantUpdateOneRequiredWithoutCustomersNestedInput
   entries?: Prisma.LedgerEntryUpdateManyWithoutCustomerNestedInput
   links?: Prisma.PaymentLinkUpdateManyWithoutCustomerNestedInput
@@ -926,6 +962,7 @@ export type CustomerUncheckedUpdateWithoutTransactionsInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   entries?: Prisma.LedgerEntryUncheckedUpdateManyWithoutCustomerNestedInput
   links?: Prisma.PaymentLinkUncheckedUpdateManyWithoutCustomerNestedInput
   receipts?: Prisma.ReceiptUncheckedUpdateManyWithoutCustomerNestedInput
@@ -941,6 +978,7 @@ export type CustomerCreateWithoutReceiptsInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   merchant: Prisma.MerchantCreateNestedOneWithoutCustomersInput
   entries?: Prisma.LedgerEntryCreateNestedManyWithoutCustomerInput
   links?: Prisma.PaymentLinkCreateNestedManyWithoutCustomerInput
@@ -958,6 +996,7 @@ export type CustomerUncheckedCreateWithoutReceiptsInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   entries?: Prisma.LedgerEntryUncheckedCreateNestedManyWithoutCustomerInput
   links?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutCustomerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCustomerInput
@@ -989,6 +1028,7 @@ export type CustomerUpdateWithoutReceiptsInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   merchant?: Prisma.MerchantUpdateOneRequiredWithoutCustomersNestedInput
   entries?: Prisma.LedgerEntryUpdateManyWithoutCustomerNestedInput
   links?: Prisma.PaymentLinkUpdateManyWithoutCustomerNestedInput
@@ -1006,6 +1046,7 @@ export type CustomerUncheckedUpdateWithoutReceiptsInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   entries?: Prisma.LedgerEntryUncheckedUpdateManyWithoutCustomerNestedInput
   links?: Prisma.PaymentLinkUncheckedUpdateManyWithoutCustomerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCustomerNestedInput
@@ -1021,6 +1062,7 @@ export type CustomerCreateWithoutRemindersInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   merchant: Prisma.MerchantCreateNestedOneWithoutCustomersInput
   entries?: Prisma.LedgerEntryCreateNestedManyWithoutCustomerInput
   links?: Prisma.PaymentLinkCreateNestedManyWithoutCustomerInput
@@ -1038,6 +1080,7 @@ export type CustomerUncheckedCreateWithoutRemindersInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
   entries?: Prisma.LedgerEntryUncheckedCreateNestedManyWithoutCustomerInput
   links?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutCustomerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCustomerInput
@@ -1069,6 +1112,7 @@ export type CustomerUpdateWithoutRemindersInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   merchant?: Prisma.MerchantUpdateOneRequiredWithoutCustomersNestedInput
   entries?: Prisma.LedgerEntryUpdateManyWithoutCustomerNestedInput
   links?: Prisma.PaymentLinkUpdateManyWithoutCustomerNestedInput
@@ -1086,6 +1130,7 @@ export type CustomerUncheckedUpdateWithoutRemindersInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   entries?: Prisma.LedgerEntryUncheckedUpdateManyWithoutCustomerNestedInput
   links?: Prisma.PaymentLinkUncheckedUpdateManyWithoutCustomerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCustomerNestedInput
@@ -1101,6 +1146,7 @@ export type CustomerCreateManyMerchantInput = {
   consentReminders?: boolean
   creditLimit?: number | null
   createdAt?: Date | string
+  archivedAt?: Date | string | null
 }
 
 export type CustomerUpdateWithoutMerchantInput = {
@@ -1112,6 +1158,7 @@ export type CustomerUpdateWithoutMerchantInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   entries?: Prisma.LedgerEntryUpdateManyWithoutCustomerNestedInput
   links?: Prisma.PaymentLinkUpdateManyWithoutCustomerNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutCustomerNestedInput
@@ -1128,6 +1175,7 @@ export type CustomerUncheckedUpdateWithoutMerchantInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   entries?: Prisma.LedgerEntryUncheckedUpdateManyWithoutCustomerNestedInput
   links?: Prisma.PaymentLinkUncheckedUpdateManyWithoutCustomerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCustomerNestedInput
@@ -1144,6 +1192,7 @@ export type CustomerUncheckedUpdateManyWithoutMerchantInput = {
   consentReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creditLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -1223,6 +1272,7 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   consentReminders?: boolean
   creditLimit?: boolean
   createdAt?: boolean
+  archivedAt?: boolean
   merchant?: boolean | Prisma.MerchantDefaultArgs<ExtArgs>
   entries?: boolean | Prisma.Customer$entriesArgs<ExtArgs>
   links?: boolean | Prisma.Customer$linksArgs<ExtArgs>
@@ -1242,6 +1292,7 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   consentReminders?: boolean
   creditLimit?: boolean
   createdAt?: boolean
+  archivedAt?: boolean
   merchant?: boolean | Prisma.MerchantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
@@ -1255,6 +1306,7 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   consentReminders?: boolean
   creditLimit?: boolean
   createdAt?: boolean
+  archivedAt?: boolean
   merchant?: boolean | Prisma.MerchantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
@@ -1268,9 +1320,10 @@ export type CustomerSelectScalar = {
   consentReminders?: boolean
   creditLimit?: boolean
   createdAt?: boolean
+  archivedAt?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientUuid" | "merchantId" | "name" | "phone" | "operator" | "consentReminders" | "creditLimit" | "createdAt", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientUuid" | "merchantId" | "name" | "phone" | "operator" | "consentReminders" | "creditLimit" | "createdAt" | "archivedAt", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   merchant?: boolean | Prisma.MerchantDefaultArgs<ExtArgs>
   entries?: boolean | Prisma.Customer$entriesArgs<ExtArgs>
@@ -1310,6 +1363,10 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     consentReminders: boolean
     creditLimit: number | null
     createdAt: Date
+    /**
+     * Client archivé (solde à 0) : masqué des listes, historique conservé. Réactivé par une nouvelle saisie.
+     */
+    archivedAt: Date | null
   }, ExtArgs["result"]["customer"]>
   composites: {}
 }
@@ -1748,6 +1805,7 @@ export interface CustomerFieldRefs {
   readonly consentReminders: Prisma.FieldRef<"Customer", 'Boolean'>
   readonly creditLimit: Prisma.FieldRef<"Customer", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Customer", 'DateTime'>
+  readonly archivedAt: Prisma.FieldRef<"Customer", 'DateTime'>
 }
     
 

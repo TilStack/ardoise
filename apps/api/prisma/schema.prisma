@@ -17,7 +17,10 @@ datasource db {
 model Merchant {
   id        String   @id @default(uuid()) @db.Uuid
   phone     String   @unique
+  /// Pour un particulier : son prénom ou nom (affiché sur la page de paiement).
   shopName  String? @map("shop_name")
+  /// null = pas encore choisi (l'app le demande à la première connexion).
+  profileType ProfileType? @map("profile_type")
   plan      String   @default("FREE")
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -37,6 +40,11 @@ model Merchant {
   reminders    Reminder[]
 
   @@map("merchants")
+}
+
+enum ProfileType {
+  MERCHANT
+  PERSONAL
 }
 
 model OtpChallenge {
@@ -63,6 +71,8 @@ model Customer {
   consentReminders Boolean  @default(true) @map("consent_reminders")
   creditLimit      Int? @map("credit_limit")
   createdAt        DateTime @default(now()) @map("created_at")
+  /// Client archivé (solde à 0) : masqué des listes, historique conservé. Réactivé par une nouvelle saisie.
+  archivedAt       DateTime? @map("archived_at")
 
   merchant     Merchant      @relation(fields: [merchantId], references: [id])
   entries      LedgerEntry[]

@@ -46,8 +46,10 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final r = await repo.api.verifyOtp(_e164!, _code.text.trim());
       await session.signIn(r['token'] as String);
-      final shop = (r['merchant'] as Map)['shopName'] as String?;
+      final merchant = r['merchant'] as Map;
+      final shop = merchant['shopName'] as String?;
       if (shop != null) await repo.setShopName(shop);
+      await repo.setProfileFromServer(merchant['profileType'] as String?);
       await repo.sync();
     } on ApiException catch (e) {
       setState(() => _error = e.message);
@@ -94,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const _ChalkBoard(),
             const SizedBox(height: 20),
             const Text(
-              'Votre cahier de crédit,\nsans le cahier.',
+              'Votre carnet de dettes,\nsans le carnet.',
               style: TextStyle(
                 fontSize: 26,
                 height: 1.15,
@@ -103,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Notez les dettes en 3 secondes. Vos clients paient par MoMo ou Orange Money, même en plusieurs fois.',
+              'Notez ce qu’on vous doit en 3 secondes. Ils paient par MoMo ou Orange Money, même en plusieurs fois.',
               style: TextStyle(color: AppColors.muted, height: 1.5),
             ),
             const SizedBox(height: 24),

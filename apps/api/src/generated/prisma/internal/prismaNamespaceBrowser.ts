@@ -83,6 +83,7 @@ export const MerchantScalarFieldEnum = {
   id: 'id',
   phone: 'phone',
   shopName: 'shopName',
+  profileType: 'profileType',
   plan: 'plan',
   createdAt: 'createdAt',
   remindersEnabled: 'remindersEnabled',
@@ -116,7 +117,8 @@ export const CustomerScalarFieldEnum = {
   operator: 'operator',
   consentReminders: 'consentReminders',
   creditLimit: 'creditLimit',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  archivedAt: 'archivedAt'
 } as const
 
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]

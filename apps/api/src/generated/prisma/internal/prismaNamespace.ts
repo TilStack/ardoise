@@ -1209,6 +1209,7 @@ export const MerchantScalarFieldEnum = {
   id: 'id',
   phone: 'phone',
   shopName: 'shopName',
+  profileType: 'profileType',
   plan: 'plan',
   createdAt: 'createdAt',
   remindersEnabled: 'remindersEnabled',
@@ -1242,7 +1243,8 @@ export const CustomerScalarFieldEnum = {
   operator: 'operator',
   consentReminders: 'consentReminders',
   creditLimit: 'creditLimit',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  archivedAt: 'archivedAt'
 } as const
 
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
@@ -1424,6 +1426,20 @@ export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
  * Reference to a field of type 'String[]'
  */
 export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ProfileType'
+ */
+export type EnumProfileTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProfileType'>
+    
+
+
+/**
+ * Reference to a field of type 'ProfileType[]'
+ */
+export type ListEnumProfileTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProfileType[]'>
     
 
 

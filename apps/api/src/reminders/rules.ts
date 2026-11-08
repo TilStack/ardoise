@@ -17,6 +17,11 @@ export const DOUALA_OFFSET_MS = 3_600_000;
 const DAY_MS = 86_400_000;
 
 export const DEFAULT_TEMPLATE = 'Bonjour {prénom}, petit rappel : {montant} FCFA à la {boutique}. Payez ici : {lien}';
+/** Particulier qui a prêté de l'argent : pas de « boutique », ton direct et simple. */
+export const DEFAULT_TEMPLATE_PERSONAL = 'Bonjour {prénom}, petit rappel : tu me dois encore {montant} FCFA. Tu peux me rembourser ici : {lien}';
+export type ReminderProfile = 'MERCHANT' | 'PERSONAL' | null;
+export const defaultTemplateFor = (profile: ReminderProfile | undefined): string =>
+  profile === 'PERSONAL' ? DEFAULT_TEMPLATE_PERSONAL : DEFAULT_TEMPLATE;
 /** Ajouté à chaque message : le lien ouvre la page de paiement, qui propose « Ne plus recevoir de rappels ». */
 export const OPT_OUT_SUFFIX = ' Pour ne plus recevoir de rappels, ouvrez le même lien.';
 export const TEMPLATE_MAX_LENGTH = 300;
@@ -145,9 +150,12 @@ export function validateTemplate(t: string): string | null {
   return null;
 }
 
-export function renderMessage(template: string | null, v: { name: string; amount: number; shop: string | null; url: string }): string {
+export function renderMessage(
+  template: string | null,
+  v: { name: string; amount: number; shop: string | null; url: string; profile?: ReminderProfile },
+): string {
   const firstName = v.name.trim().split(/\s+/)[0] || v.name;
-  const body = (template ?? DEFAULT_TEMPLATE)
+  const body = (template ?? defaultTemplateFor(v.profile))
     .replace(/\{pr[ée]nom\}/g, firstName)
     .replace(/\{montant\}/g, formatAmount(v.amount))
     .replace(/\{boutique\}/g, v.shop?.trim() || 'boutique')

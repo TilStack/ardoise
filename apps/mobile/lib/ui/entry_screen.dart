@@ -11,6 +11,7 @@ import 'theme.dart';
 /// Choisit un client (ou en crée un) puis ouvre la saisie — ou l'envoi du lien si [kind] est null.
 Future<void> pickCustomerThen(BuildContext context, EntryKind? kind) async {
   final repo = context.read<ArdoiseRepository>();
+  final v = repo.vocab;
   final picked = await showModalBottomSheet<Customer>(
     context: context,
     isScrollControlled: true,
@@ -22,9 +23,9 @@ Future<void> pickCustomerThen(BuildContext context, EntryKind? kind) async {
         controller: scroll,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          const Text(
-            'Pour quel client ?',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          Text(
+            v.forWhichPerson,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           ListTile(
@@ -33,7 +34,7 @@ Future<void> pickCustomerThen(BuildContext context, EntryKind? kind) async {
               fg: AppColors.orange,
               bg: AppColors.orangeSoft,
             ),
-            title: const Text('Nouveau client'),
+            title: Text(v.newPerson),
             onTap: () async {
               final c = await showAddCustomer(ctx);
               if (c != null && ctx.mounted) Navigator.pop(ctx, c);
@@ -66,12 +67,13 @@ Future<void> pickCustomerThen(BuildContext context, EntryKind? kind) async {
 Future<Customer?> showAddCustomer(BuildContext context) {
   final name = TextEditingController();
   final phone = TextEditingController();
+  final v = context.read<ArdoiseRepository>().vocab;
   String? error;
   return showDialog<Customer>(
     context: context,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, set) => AlertDialog(
-        title: const Text('Nouveau client'),
+        title: Text(v.newPerson),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -163,6 +165,7 @@ class _EntryScreenState extends State<EntryScreen> {
   void _add(int v) => setState(() => _digits = '${_amount + v}');
 
   Future<void> _save() async {
+    final v = context.read<ArdoiseRepository>().vocab;
     setState(() => _saving = true);
     await context.read<ArdoiseRepository>().addEntry(
       customerId: widget.customer.id,
@@ -175,7 +178,7 @@ class _EntryScreenState extends State<EntryScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '${widget.kind == EntryKind.debt ? 'Dette' : 'Paiement espèces'} de ${fcfa(_amount)} enregistré',
+          '${widget.kind == EntryKind.debt ? v.debt : v.cashEntryDone} de ${fcfa(_amount)} enregistré',
         ),
       ),
     );
@@ -185,6 +188,7 @@ class _EntryScreenState extends State<EntryScreen> {
   Widget build(BuildContext context) {
     final debt = widget.kind == EntryKind.debt;
     final online = context.watch<ArdoiseRepository>().online;
+    final v = context.watch<ArdoiseRepository>().vocab;
     final keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0', '⌫'];
     return Scaffold(
       appBar: AppBar(
@@ -196,7 +200,7 @@ class _EntryScreenState extends State<EntryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              debt ? 'Nouvelle dette' : 'Espèces reçues',
+              debt ? v.newDebt : v.cashReceived,
               style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
             ),
             Text(

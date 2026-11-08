@@ -9,6 +9,14 @@
 * 🟢 You can import this file directly.
 */
 
+export const ProfileType = {
+  MERCHANT: 'MERCHANT',
+  PERSONAL: 'PERSONAL'
+} as const
+
+export type ProfileType = (typeof ProfileType)[keyof typeof ProfileType]
+
+
 export const Operator = {
   MTN: 'MTN',
   ORANGE: 'ORANGE'

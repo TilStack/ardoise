@@ -97,6 +97,8 @@ export class EntriesController {
     }
     const customer = await this.prisma.customer.findFirst({ where: { id: dto.customerId, merchantId } });
     if (!customer) throw new NotFoundException('Client introuvable');
+    // Une nouvelle saisie sur un client archivé (ex. saisie hors-ligne synchronisée plus tard) le réactive.
+    if (customer.archivedAt) await this.prisma.customer.update({ where: { id: customer.id }, data: { archivedAt: null } });
     const occurredAt = dto.occurredAt ? new Date(dto.occurredAt) : new Date();
     if (occurredAt.getTime() > Date.now() + 5 * 60_000) throw new BadRequestException('Date dans le futur');
 

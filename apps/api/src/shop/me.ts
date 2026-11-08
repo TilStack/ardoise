@@ -1,11 +1,13 @@
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
-import { IsOptional, IsString, Length } from 'class-validator';
+import { IsIn, IsOptional, IsString, Length } from 'class-validator';
 import { JwtGuard, MerchantId } from '../auth/auth';
 import { PrismaService } from '../prisma/prisma.service';
 import { CustomerQueries } from './customers';
 
 class UpdateMeDto {
+  /** Commerçant : nom de la boutique. Particulier : son prénom ou nom. */
   @IsOptional() @IsString() @Length(2, 60) shopName?: string;
+  @IsOptional() @IsIn(['MERCHANT', 'PERSONAL']) profileType?: 'MERCHANT' | 'PERSONAL';
 }
 
 @UseGuards(JwtGuard)

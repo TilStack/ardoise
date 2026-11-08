@@ -25,11 +25,15 @@ class _CustomerScreenState extends State<CustomerScreen> {
     _reload();
   }
 
-  void _reload() => setState(
-    () => _detail = context.read<ArdoiseRepository>().customerDetail(
+  void _reload() {
+    final detail = context.read<ArdoiseRepository>().customerDetail(
       widget.customerId,
-    ),
-  );
+    );
+    // Le callback de setState doit rester synchrone : ne jamais renvoyer le Future.
+    setState(() {
+      _detail = detail;
+    });
+  }
 
   Future<void> _cancel(Map<String, dynamic> h) async {
     final ok = await showDialog<bool>(
@@ -64,12 +68,64 @@ class _CustomerScreenState extends State<CustomerScreen> {
     }
   }
 
+  Future<void> _archive(Customer c) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final repo = context.read<ArdoiseRepository>();
+    final v = repo.vocab;
+    if (c.balance != 0) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            'Soldez d’abord ${v.thePerson} : le solde doit être à 0.',
+          ),
+        ),
+      );
+      return;
+    }
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Archiver ${v.thePerson} ?'),
+        content: Text(
+          '${c.name} disparaîtra de la liste. Son historique est conservé, et une nouvelle saisie le fera réapparaître.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Non'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Archiver'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await repo.archiveCustomer(c.id);
+      navigator.pop();
+      await repo.sync();
+      messenger.showSnackBar(SnackBar(content: Text('${c.name} est archivé.')));
+    } on ApiException catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final repo = context.watch<ArdoiseRepository>();
     final c = repo.byId(widget.customerId);
+    final v = repo.vocab;
     if (c == null) {
-      return const Scaffold(body: Center(child: Text('Client introuvable')));
+      return Scaffold(
+        body: Center(
+          child: Text(
+            v.personal ? 'Personne introuvable' : 'Client introuvable',
+          ),
+        ),
+      );
     }
     return Scaffold(
       appBar: AppBar(
@@ -86,6 +142,22 @@ class _CustomerScreenState extends State<CustomerScreen> {
             ),
           ],
         ),
+        actions: [
+          PopupMenuButton<String>(
+            tooltip: 'Plus d’actions',
+            onSelected: (v) {
+              if (v == 'archive') _archive(c);
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                value: 'archive',
+                child: Text(
+                  v.personal ? 'Archiver cette personne' : 'Archiver ce client',
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -113,7 +185,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                       ),
                     ).then((_) => _reload()),
                     icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Dette'),
+                    label: Text(v.debt),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -132,7 +204,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                       ),
                     ).then((_) => _reload()),
                     icon: const Icon(Icons.payments_outlined, size: 18),
-                    label: const Text('Espèces'),
+                    label: Text(v.cashShort),
                   ),
                 ),
               ],
@@ -230,7 +302,9 @@ class _BalanceCard extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                customer.balance < 0 ? 'Avoir du client' : 'Doit à la boutique',
+                customer.balance < 0
+                    ? context.watch<ArdoiseRepository>().vocab.creditLabel
+                    : context.watch<ArdoiseRepository>().vocab.owesLabel,
                 style: const TextStyle(color: Color(0xFFA9B6BC), fontSize: 13),
               ),
             ),
@@ -278,6 +352,7 @@ class _HistoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final type = h['type'] as String;
+    final vocab = context.watch<ArdoiseRepository>().vocab;
     final reversed = h['reversed'] == true;
     final date = DateFormat(
       'd MMM · HH:mm',
@@ -288,13 +363,13 @@ class _HistoryTile extends StatelessWidget {
         Icons.add,
         const Color(0xFFC2410C),
         AppColors.orangeSoft,
-        (h['label'] as String?) ?? 'Dette',
+        (h['label'] as String?) ?? vocab.debt,
       ),
       'CASH_REPAYMENT' => (
         Icons.payments_outlined,
         AppColors.green,
         AppColors.greenSoft,
-        'Paiement espèces',
+        vocab.cashEntryDone,
       ),
       'MOBILE_PAYMENT' => (
         Icons.check,

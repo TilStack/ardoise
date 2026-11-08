@@ -283,9 +283,12 @@ class _RemindersScreenState extends State<RemindersScreen> {
                     onSelectionChanged: (v) => set(() => channel = v.first),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Si le client n’a pas WhatsApp, le rappel part par SMS.',
-                    style: TextStyle(color: AppColors.muted, fontSize: 12),
+                  Text(
+                    context.read<ArdoiseRepository>().vocab.noWhatsapp,
+                    style: const TextStyle(
+                      color: AppColors.muted,
+                      fontSize: 12,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   FilledButton(
@@ -334,9 +337,14 @@ class _RemindersScreenState extends State<RemindersScreen> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Variables : {prénom} {montant} {boutique} {lien}',
-                    style: TextStyle(color: AppColors.muted, fontSize: 12),
+                  Text(
+                    context.read<ArdoiseRepository>().isPersonal
+                        ? 'Variables : {prénom} {montant} {lien}'
+                        : 'Variables : {prénom} {montant} {boutique} {lien}',
+                    style: const TextStyle(
+                      color: AppColors.muted,
+                      fontSize: 12,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   TextField(
@@ -446,7 +454,7 @@ class _Summary extends StatelessWidget {
                 Text(
                   s.enabled
                       ? 'Envoi à ${s.sendHour} h · max 1 message / 48 h'
-                      : 'Vos clients ne reçoivent plus de rappels',
+                      : context.read<ArdoiseRepository>().vocab.remindersOff,
                   style: const TextStyle(color: AppColors.muted, fontSize: 12),
                 ),
                 if (data.recovered > 0) ...[

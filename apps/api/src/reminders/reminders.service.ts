@@ -7,13 +7,14 @@ import {
   atDoualaHour,
   DebtState,
   debtState,
-  DEFAULT_TEMPLATE,
+  defaultTemplateFor,
   deferral,
   inSendWindow,
   Movement,
   nextReminder,
   nextSendable,
   OPT_OUT_SUFFIX,
+  ReminderProfile,
   renderMessage,
   validateTemplate,
 } from './rules';
@@ -179,7 +180,7 @@ export class RemindersService {
       }
 
       const link = await this.payments.createLink(r.merchantId, r.customerId);
-      const text = renderMessage(r.merchant.reminderTemplate, { name: r.customer.name, amount: st.balance, shop: r.merchant.shopName, url: link.url });
+      const text = renderMessage(r.merchant.reminderTemplate, { name: r.customer.name, amount: st.balance, shop: r.merchant.shopName, url: link.url, profile: r.merchant.profileType });
       const delivery = await this.messenger.send(r.channel, r.customer.phone, text);
       await set({
         status: 'SENT',
@@ -297,14 +298,15 @@ export class RemindersService {
     };
   }
 
-  settingsOf(m: { remindersEnabled: boolean; reminderSendHour: number; reminderTemplate: string | null; reminderChannel: Channel }) {
+  settingsOf(m: { remindersEnabled: boolean; reminderSendHour: number; reminderTemplate: string | null; reminderChannel: Channel; profileType?: ReminderProfile }) {
+    const defaultTemplate = defaultTemplateFor(m.profileType);
     return {
       enabled: m.remindersEnabled,
       sendHour: m.reminderSendHour,
       channel: m.reminderChannel,
-      template: m.reminderTemplate ?? DEFAULT_TEMPLATE,
+      template: m.reminderTemplate ?? defaultTemplate,
       customTemplate: m.reminderTemplate !== null,
-      defaultTemplate: DEFAULT_TEMPLATE,
+      defaultTemplate,
       optOutSuffix: OPT_OUT_SUFFIX,
     };
   }
@@ -314,7 +316,8 @@ export class RemindersService {
       const err = validateTemplate(dto.template);
       if (err) throw new BadRequestException(err);
     }
-    const template = dto.template === undefined ? undefined : dto.template === null || dto.template.trim() === DEFAULT_TEMPLATE ? null : dto.template.trim();
+    const profile = (await this.prisma.merchant.findUniqueOrThrow({ where: { id: merchantId }, select: { profileType: true } })).profileType;
+    const template = dto.template === undefined ? undefined : dto.template === null || dto.template.trim() === defaultTemplateFor(profile) ? null : dto.template.trim();
     const m = await this.prisma.merchant.update({
       where: { id: merchantId },
       data: { remindersEnabled: dto.enabled, reminderSendHour: dto.sendHour, reminderTemplate: template, reminderChannel: dto.channel },

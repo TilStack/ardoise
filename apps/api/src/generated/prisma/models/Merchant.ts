@@ -38,6 +38,7 @@ export type MerchantMinAggregateOutputType = {
   id: string | null
   phone: string | null
   shopName: string | null
+  profileType: $Enums.ProfileType | null
   plan: string | null
   createdAt: Date | null
   remindersEnabled: boolean | null
@@ -50,6 +51,7 @@ export type MerchantMaxAggregateOutputType = {
   id: string | null
   phone: string | null
   shopName: string | null
+  profileType: $Enums.ProfileType | null
   plan: string | null
   createdAt: Date | null
   remindersEnabled: boolean | null
@@ -62,6 +64,7 @@ export type MerchantCountAggregateOutputType = {
   id: number
   phone: number
   shopName: number
+  profileType: number
   plan: number
   createdAt: number
   remindersEnabled: number
@@ -84,6 +87,7 @@ export type MerchantMinAggregateInputType = {
   id?: true
   phone?: true
   shopName?: true
+  profileType?: true
   plan?: true
   createdAt?: true
   remindersEnabled?: true
@@ -96,6 +100,7 @@ export type MerchantMaxAggregateInputType = {
   id?: true
   phone?: true
   shopName?: true
+  profileType?: true
   plan?: true
   createdAt?: true
   remindersEnabled?: true
@@ -108,6 +113,7 @@ export type MerchantCountAggregateInputType = {
   id?: true
   phone?: true
   shopName?: true
+  profileType?: true
   plan?: true
   createdAt?: true
   remindersEnabled?: true
@@ -207,6 +213,7 @@ export type MerchantGroupByOutputType = {
   id: string
   phone: string
   shopName: string | null
+  profileType: $Enums.ProfileType | null
   plan: string
   createdAt: Date
   remindersEnabled: boolean
@@ -242,6 +249,7 @@ export type MerchantWhereInput = {
   id?: Prisma.UuidFilter<"Merchant"> | string
   phone?: Prisma.StringFilter<"Merchant"> | string
   shopName?: Prisma.StringNullableFilter<"Merchant"> | string | null
+  profileType?: Prisma.EnumProfileTypeNullableFilter<"Merchant"> | $Enums.ProfileType | null
   plan?: Prisma.StringFilter<"Merchant"> | string
   createdAt?: Prisma.DateTimeFilter<"Merchant"> | Date | string
   remindersEnabled?: Prisma.BoolFilter<"Merchant"> | boolean
@@ -260,6 +268,7 @@ export type MerchantOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   shopName?: Prisma.SortOrderInput | Prisma.SortOrder
+  profileType?: Prisma.SortOrderInput | Prisma.SortOrder
   plan?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   remindersEnabled?: Prisma.SortOrder
@@ -281,6 +290,7 @@ export type MerchantWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.MerchantWhereInput[]
   NOT?: Prisma.MerchantWhereInput | Prisma.MerchantWhereInput[]
   shopName?: Prisma.StringNullableFilter<"Merchant"> | string | null
+  profileType?: Prisma.EnumProfileTypeNullableFilter<"Merchant"> | $Enums.ProfileType | null
   plan?: Prisma.StringFilter<"Merchant"> | string
   createdAt?: Prisma.DateTimeFilter<"Merchant"> | Date | string
   remindersEnabled?: Prisma.BoolFilter<"Merchant"> | boolean
@@ -299,6 +309,7 @@ export type MerchantOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   shopName?: Prisma.SortOrderInput | Prisma.SortOrder
+  profileType?: Prisma.SortOrderInput | Prisma.SortOrder
   plan?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   remindersEnabled?: Prisma.SortOrder
@@ -319,6 +330,7 @@ export type MerchantScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"Merchant"> | string
   phone?: Prisma.StringWithAggregatesFilter<"Merchant"> | string
   shopName?: Prisma.StringNullableWithAggregatesFilter<"Merchant"> | string | null
+  profileType?: Prisma.EnumProfileTypeNullableWithAggregatesFilter<"Merchant"> | $Enums.ProfileType | null
   plan?: Prisma.StringWithAggregatesFilter<"Merchant"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Merchant"> | Date | string
   remindersEnabled?: Prisma.BoolWithAggregatesFilter<"Merchant"> | boolean
@@ -331,6 +343,7 @@ export type MerchantCreateInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -349,6 +362,7 @@ export type MerchantUncheckedCreateInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -367,6 +381,7 @@ export type MerchantUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -385,6 +400,7 @@ export type MerchantUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -403,6 +419,7 @@ export type MerchantCreateManyInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -415,6 +432,7 @@ export type MerchantUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -427,6 +445,7 @@ export type MerchantUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -439,6 +458,7 @@ export type MerchantCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   shopName?: Prisma.SortOrder
+  profileType?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   remindersEnabled?: Prisma.SortOrder
@@ -455,6 +475,7 @@ export type MerchantMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   shopName?: Prisma.SortOrder
+  profileType?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   remindersEnabled?: Prisma.SortOrder
@@ -467,6 +488,7 @@ export type MerchantMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   shopName?: Prisma.SortOrder
+  profileType?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   remindersEnabled?: Prisma.SortOrder
@@ -490,6 +512,10 @@ export type StringFieldUpdateOperationsInput = {
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
+}
+
+export type NullableEnumProfileTypeFieldUpdateOperationsInput = {
+  set?: $Enums.ProfileType | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -600,6 +626,7 @@ export type MerchantCreateWithoutCustomersInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -617,6 +644,7 @@ export type MerchantUncheckedCreateWithoutCustomersInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -650,6 +678,7 @@ export type MerchantUpdateWithoutCustomersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -667,6 +696,7 @@ export type MerchantUncheckedUpdateWithoutCustomersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -684,6 +714,7 @@ export type MerchantCreateWithoutEntriesInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -701,6 +732,7 @@ export type MerchantUncheckedCreateWithoutEntriesInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -734,6 +766,7 @@ export type MerchantUpdateWithoutEntriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -751,6 +784,7 @@ export type MerchantUncheckedUpdateWithoutEntriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -768,6 +802,7 @@ export type MerchantCreateWithoutLinksInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -785,6 +820,7 @@ export type MerchantUncheckedCreateWithoutLinksInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -818,6 +854,7 @@ export type MerchantUpdateWithoutLinksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -835,6 +872,7 @@ export type MerchantUncheckedUpdateWithoutLinksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -852,6 +890,7 @@ export type MerchantCreateWithoutTransactionsInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -869,6 +908,7 @@ export type MerchantUncheckedCreateWithoutTransactionsInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -902,6 +942,7 @@ export type MerchantUpdateWithoutTransactionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -919,6 +960,7 @@ export type MerchantUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -936,6 +978,7 @@ export type MerchantCreateWithoutReceiptsInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -953,6 +996,7 @@ export type MerchantUncheckedCreateWithoutReceiptsInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -986,6 +1030,7 @@ export type MerchantUpdateWithoutReceiptsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1003,6 +1048,7 @@ export type MerchantUncheckedUpdateWithoutReceiptsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1020,6 +1066,7 @@ export type MerchantCreateWithoutRemindersInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -1037,6 +1084,7 @@ export type MerchantUncheckedCreateWithoutRemindersInput = {
   id?: string
   phone: string
   shopName?: string | null
+  profileType?: $Enums.ProfileType | null
   plan?: string
   createdAt?: Date | string
   remindersEnabled?: boolean
@@ -1070,6 +1118,7 @@ export type MerchantUpdateWithoutRemindersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1087,6 +1136,7 @@ export type MerchantUncheckedUpdateWithoutRemindersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   shopName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileType?: Prisma.NullableEnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindersEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1180,6 +1230,7 @@ export type MerchantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   phone?: boolean
   shopName?: boolean
+  profileType?: boolean
   plan?: boolean
   createdAt?: boolean
   remindersEnabled?: boolean
@@ -1199,6 +1250,7 @@ export type MerchantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   phone?: boolean
   shopName?: boolean
+  profileType?: boolean
   plan?: boolean
   createdAt?: boolean
   remindersEnabled?: boolean
@@ -1211,6 +1263,7 @@ export type MerchantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   phone?: boolean
   shopName?: boolean
+  profileType?: boolean
   plan?: boolean
   createdAt?: boolean
   remindersEnabled?: boolean
@@ -1223,6 +1276,7 @@ export type MerchantSelectScalar = {
   id?: boolean
   phone?: boolean
   shopName?: boolean
+  profileType?: boolean
   plan?: boolean
   createdAt?: boolean
   remindersEnabled?: boolean
@@ -1231,7 +1285,7 @@ export type MerchantSelectScalar = {
   reminderChannel?: boolean
 }
 
-export type MerchantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "phone" | "shopName" | "plan" | "createdAt" | "remindersEnabled" | "reminderSendHour" | "reminderTemplate" | "reminderChannel", ExtArgs["result"]["merchant"]>
+export type MerchantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "phone" | "shopName" | "profileType" | "plan" | "createdAt" | "remindersEnabled" | "reminderSendHour" | "reminderTemplate" | "reminderChannel", ExtArgs["result"]["merchant"]>
 export type MerchantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customers?: boolean | Prisma.Merchant$customersArgs<ExtArgs>
   entries?: boolean | Prisma.Merchant$entriesArgs<ExtArgs>
@@ -1257,7 +1311,14 @@ export type $MerchantPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     phone: string
+    /**
+     * Pour un particulier : son prénom ou nom (affiché sur la page de paiement).
+     */
     shopName: string | null
+    /**
+     * null = pas encore choisi (l'app le demande à la première connexion).
+     */
+    profileType: $Enums.ProfileType | null
     plan: string
     createdAt: Date
     /**
@@ -1705,6 +1766,7 @@ export interface MerchantFieldRefs {
   readonly id: Prisma.FieldRef<"Merchant", 'String'>
   readonly phone: Prisma.FieldRef<"Merchant", 'String'>
   readonly shopName: Prisma.FieldRef<"Merchant", 'String'>
+  readonly profileType: Prisma.FieldRef<"Merchant", 'ProfileType'>
   readonly plan: Prisma.FieldRef<"Merchant", 'String'>
   readonly createdAt: Prisma.FieldRef<"Merchant", 'DateTime'>
   readonly remindersEnabled: Prisma.FieldRef<"Merchant", 'Boolean'>

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Injectable, NotFoundException, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, ConflictException, Controller, Get, HttpCode, Injectable, NotFoundException, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { IsBoolean, IsIn, IsInt, IsOptional, IsString, IsUUID, Length, Max, Min } from 'class-validator';
 import { detectOperator } from '@ardoise/pay-core';
 import { JwtGuard, MerchantId, toPhone } from '../auth/auth';
@@ -41,9 +41,10 @@ export class CustomerQueries {
     private readonly ledger: LedgerService,
   ) {}
 
-  async summaries(merchantId: string, now = new Date()): Promise<CustomerSummary[]> {
+  /** Par défaut, les clients archivés sont exclus ; `archived: true` ne renvoie qu'eux. */
+  async summaries(merchantId: string, now = new Date(), archived = false): Promise<CustomerSummary[]> {
     const [customers, balances, activity] = await Promise.all([
-      this.prisma.customer.findMany({ where: { merchantId } }),
+      this.prisma.customer.findMany({ where: { merchantId, archivedAt: archived ? { not: null } : null } }),
       this.ledger.balancesForMerchant(merchantId),
       this.prisma.ledgerEntry.groupBy({ by: ['customerId'], where: { merchantId }, _max: { occurredAt: true } }),
     ]);
@@ -83,7 +84,11 @@ export class CustomersController {
     const existing = await this.prisma.customer.findFirst({
       where: { merchantId, OR: [{ phone }, ...(dto.clientUuid ? [{ clientUuid: dto.clientUuid }] : [])] },
     });
-    if (existing) return existing;
+    if (existing) {
+      // Recréer un client archivé (même numéro) le réactive, avec tout son historique.
+      if (existing.archivedAt) return this.prisma.customer.update({ where: { id: existing.id }, data: { archivedAt: null } });
+      return existing;
+    }
     try {
       return await this.prisma.customer.create({
         data: {
@@ -106,8 +111,13 @@ export class CustomersController {
   }
 
   @Get()
-  async list(@MerchantId() merchantId: string, @Query('filter') filter?: 'late' | 'up_to_date', @Query('q') q?: string) {
-    const all = await this.queries.summaries(merchantId);
+  async list(
+    @MerchantId() merchantId: string,
+    @Query('filter') filter?: 'late' | 'up_to_date',
+    @Query('q') q?: string,
+    @Query('archived') archived?: string,
+  ) {
+    const all = await this.queries.summaries(merchantId, new Date(), archived === 'true');
     let rows = all;
     if (filter === 'late') rows = rows.filter((c) => c.status === 'LATE');
     if (filter === 'up_to_date') rows = rows.filter((c) => c.status !== 'LATE');
@@ -158,5 +168,24 @@ export class CustomersController {
     const c = await this.prisma.customer.findFirst({ where: { id, merchantId } });
     if (!c) throw new NotFoundException('Client introuvable');
     return this.prisma.customer.update({ where: { id }, data: dto });
+  }
+
+  /** Archive un client dont le solde est à 0 : il quitte les listes, son historique reste intact. */
+  @Post(':id/archive')
+  @HttpCode(200)
+  async archive(@MerchantId() merchantId: string, @Param('id', ParseUUIDPipe) id: string) {
+    const c = await this.prisma.customer.findFirst({ where: { id, merchantId } });
+    if (!c) throw new NotFoundException('Client introuvable');
+    const balance = await this.ledger.balanceOf(id);
+    if (balance !== 0) throw new ConflictException('Un client ne peut être archivé que si son solde est à 0');
+    return this.prisma.customer.update({ where: { id }, data: { archivedAt: c.archivedAt ?? new Date() } });
+  }
+
+  @Post(':id/unarchive')
+  @HttpCode(200)
+  async unarchive(@MerchantId() merchantId: string, @Param('id', ParseUUIDPipe) id: string) {
+    const c = await this.prisma.customer.findFirst({ where: { id, merchantId } });
+    if (!c) throw new NotFoundException('Client introuvable');
+    return this.prisma.customer.update({ where: { id }, data: { archivedAt: null } });
   }
 }

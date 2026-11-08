@@ -29,6 +29,7 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
+    final v = context.watch<ArdoiseRepository>().vocab;
     final pages = [
       const DashboardScreen(),
       const CustomersScreen(),
@@ -41,7 +42,7 @@ class _HomeShellState extends State<HomeShell> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.orange,
         foregroundColor: Colors.white,
-        tooltip: 'Nouvelle dette',
+        tooltip: v.newDebt,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         onPressed: () => pickCustomerThen(context, EntryKind.debt),
         child: const Icon(Icons.add, size: 28),
@@ -51,23 +52,23 @@ class _HomeShellState extends State<HomeShell> {
         backgroundColor: Colors.white,
         indicatorColor: AppColors.field,
         onDestinationSelected: (i) => setState(() => _tab = i),
-        destinations: const [
-          NavigationDestination(
+        destinations: [
+          const NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
             label: 'Accueil',
           ),
           NavigationDestination(
-            icon: Icon(Icons.people_outline),
-            selectedIcon: Icon(Icons.people),
-            label: 'Clients',
+            icon: const Icon(Icons.people_outline),
+            selectedIcon: const Icon(Icons.people),
+            label: v.people,
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.notifications_none),
             selectedIcon: Icon(Icons.notifications),
             label: 'Relances',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Profil',
@@ -145,7 +146,7 @@ class DashboardScreen extends StatelessWidget {
                       style: TextStyle(color: AppColors.muted, fontSize: 13),
                     ),
                     Text(
-                      r.shopName ?? 'Ma boutique',
+                      r.shopName ?? r.vocab.homeTitle,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
@@ -166,7 +167,7 @@ class DashboardScreen extends StatelessWidget {
           const SyncBanner(),
           _Slate(
             totalOwed: r.totalOwed,
-            customers: r.customers.length,
+            customersLabel: r.vocab.count(r.customers.length),
             lateCount: late.length,
             collected: r.dashboard.collectedThisMonth,
             inTransit: r.dashboard.inTransit,
@@ -178,7 +179,7 @@ class DashboardScreen extends StatelessWidget {
               children: [
                 _QuickAction(
                   icon: Icons.add,
-                  label: 'Nouvelle dette',
+                  label: r.vocab.newDebt,
                   fg: const Color(0xFFC2410C),
                   bg: AppColors.orangeSoft,
                   onTap: () => pickCustomerThen(context, EntryKind.debt),
@@ -186,7 +187,7 @@ class DashboardScreen extends StatelessWidget {
                 const SizedBox(width: 10),
                 _QuickAction(
                   icon: Icons.payments_outlined,
-                  label: 'Espèces reçues',
+                  label: r.vocab.cashReceived,
                   fg: AppColors.green,
                   bg: AppColors.greenSoft,
                   onTap: () => pickCustomerThen(context, EntryKind.cash),
@@ -209,10 +210,10 @@ class DashboardScreen extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           if (late.isEmpty)
-            const AppCard(
+            AppCard(
               child: Text(
-                'Aucun client en retard. Bravo !',
-                style: TextStyle(color: AppColors.muted),
+                r.vocab.noLate,
+                style: const TextStyle(color: AppColors.muted),
               ),
             )
           else
@@ -234,12 +235,13 @@ class DashboardScreen extends StatelessWidget {
 class _Slate extends StatelessWidget {
   const _Slate({
     required this.totalOwed,
-    required this.customers,
+    required this.customersLabel,
     required this.lateCount,
     required this.collected,
     required this.inTransit,
   });
-  final int totalOwed, customers, lateCount, collected, inTransit;
+  final int totalOwed, lateCount, collected, inTransit;
+  final String customersLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -315,7 +317,7 @@ class _Slate extends StatelessWidget {
           Row(
             children: [
               Pill(
-                '$customers clients',
+                customersLabel,
                 fg: const Color(0xFFF4F1EA),
                 bg: Colors.white.withValues(alpha: .1),
               ),
@@ -491,16 +493,19 @@ class _CustomersScreenState extends State<CustomersScreen> {
       children: [
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
-                'Clients',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+                r.vocab.people,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
             IconButton.filledTonal(
               onPressed: () => showAddCustomer(context),
               icon: const Icon(Icons.person_add_alt_1),
-              tooltip: 'Ajouter un client',
+              tooltip: r.vocab.addPerson,
             ),
           ],
         ),
@@ -531,10 +536,10 @@ class _CustomersScreenState extends State<CustomersScreen> {
         ),
         const SizedBox(height: 12),
         if (list.isEmpty)
-          const AppCard(
+          AppCard(
             child: Text(
-              'Aucun client. Ajoutez votre premier client avec le bouton en haut.',
-              style: TextStyle(color: AppColors.muted),
+              r.vocab.emptyList,
+              style: const TextStyle(color: AppColors.muted),
             ),
           )
         else
@@ -565,17 +570,15 @@ class ProfileScreen extends StatelessWidget {
         AppCard(
           child: ListTile(
             contentPadding: EdgeInsets.zero,
-            title: Text(r.shopName ?? 'Nom de la boutique'),
-            subtitle: const Text(
-              'Affiché sur les liens et reçus envoyés aux clients',
-            ),
+            title: Text(r.shopName ?? r.vocab.nameTitle),
+            subtitle: Text(r.vocab.nameHelp),
             trailing: const Icon(Icons.edit_outlined),
             onTap: () async {
               final ctrl = TextEditingController(text: r.shopName);
               final name = await showDialog<String>(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  title: const Text('Nom de la boutique'),
+                  title: Text(r.vocab.nameTitle),
                   content: TextField(controller: ctrl, autofocus: true),
                   actions: [
                     TextButton(

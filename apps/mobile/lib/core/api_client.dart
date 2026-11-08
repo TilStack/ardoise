@@ -78,8 +78,13 @@ class ApiClient {
 
   // ---- Boutique ----
   Future<Map<String, dynamic>> me() async => await _send('GET', '/me');
-  Future<Map<String, dynamic>> updateMe(String shopName) async =>
-      await _send('PATCH', '/me', {'shopName': shopName});
+  Future<Map<String, dynamic>> updateMe({
+    String? shopName,
+    String? profileType,
+  }) async => await _send('PATCH', '/me', {
+    'shopName': ?shopName,
+    'profileType': ?profileType,
+  });
   Future<Map<String, dynamic>> dashboard() async =>
       await _send('GET', '/dashboard');
 
@@ -88,6 +93,8 @@ class ApiClient {
       await _send('GET', '/customers');
   Future<Map<String, dynamic>> customer(String id) async =>
       await _send('GET', '/customers/$id');
+  Future<Map<String, dynamic>> archiveCustomer(String id) async =>
+      await _send('POST', '/customers/$id/archive', {});
   Future<Map<String, dynamic>> createCustomer({
     required String clientUuid,
     required String name,
