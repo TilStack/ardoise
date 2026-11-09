@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/repository.dart';
+import 'logo_mark.dart';
 import 'profile_option.dart';
-import 'theme.dart';
 
 /// Écran d'entrée : on choisit d'abord à quoi sert l'app, puis on saisit son numéro.
 class WelcomeScreen extends StatelessWidget {
@@ -19,23 +19,7 @@ class WelcomeScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: AppColors.slate,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'A',
-                    style: TextStyle(
-                      color: AppColors.chalk,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 20,
-                    ),
-                  ),
-                ),
+                const LogoMark(size: 44),
                 const SizedBox(width: 10),
                 const Text(
                   "L'Ardoise",

@@ -5,6 +5,7 @@ import '../core/api_client.dart';
 import '../core/money.dart';
 import '../data/repository.dart';
 import '../main.dart';
+import 'logo_mark.dart';
 import 'theme.dart';
 
 /// Écran 01 — Connexion par numéro + code SMS.
@@ -90,23 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 8),
             Row(
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: AppColors.slate,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'A',
-                    style: TextStyle(
-                      color: AppColors.chalk,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 20,
-                    ),
-                  ),
-                ),
+                const LogoMark(size: 44),
                 const SizedBox(width: 10),
                 const Text(
                   "L'Ardoise",

@@ -25,6 +25,16 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
   sqflite_common_ffi: ^2.3.4
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: assets/logo/ardoise_icon.png
+  adaptive_icon_background: "#EA580C"
+  adaptive_icon_foreground: assets/logo/ardoise_foreground.png
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/logo/ardoise_icon.png
