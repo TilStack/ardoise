@@ -102,6 +102,13 @@ describe('Configuration des SMS en production', () => {
     expect(loadConfig().smsProvider).toBe('africastalking');
   });
 
+  it('refuse les secrets d’exemple publiés dans le dépôt', () => {
+    prod({ OTP_TEST_NUMBERS: '+237677000555:424242', JWT_SECRET: 'change-me-in-production-please-123456' });
+    expect(() => loadConfig()).toThrow(/valeur d’exemple/);
+    prod({ OTP_TEST_NUMBERS: '+237677000555:424242', WEBHOOK_SECRET: 'dev-webhook-secret' });
+    expect(() => loadConfig()).toThrow(/WEBHOOK_SECRET/);
+  });
+
   it('rejette une liste de numéros de test mal formée', () => {
     expect(() => parseTestNumbers('0677000555:12')).toThrow(/invalide/);
     expect(parseTestNumbers('')).toEqual({});

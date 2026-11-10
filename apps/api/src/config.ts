@@ -37,6 +37,13 @@ export function loadConfig(): AppConfig {
   const isProd = process.env.NODE_ENV === 'production';
   const jwtSecret = required('JWT_SECRET');
   if (isProd && jwtSecret.length < 32) throw new Error('JWT_SECRET doit faire au moins 32 caractères en production');
+  // Les valeurs d'exemple sont publiques (dépôt public) : jamais en production.
+  if (isProd && /^(change-me|dev-|test-secret)/i.test(jwtSecret)) {
+    throw new Error('JWT_SECRET ressemble à une valeur d’exemple : générer un secret aléatoire pour la production');
+  }
+  if (isProd && /^(dev-|test-)/i.test(process.env.WEBHOOK_SECRET ?? '')) {
+    throw new Error('WEBHOOK_SECRET ressemble à une valeur d’exemple : utiliser le secret du webhook NotchPay de production');
+  }
   const paymentProvider = (process.env.PAYMENT_PROVIDER ?? 'sandbox') as AppConfig['paymentProvider'];
   if (isProd && paymentProvider === 'sandbox') throw new Error('PAYMENT_PROVIDER=sandbox interdit en production');
   const otpDevEcho = process.env.OTP_DEV_ECHO === 'true';
