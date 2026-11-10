@@ -1,7 +1,17 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// Clé de signature de production : lue dans android/key.properties (jamais commité).
+// Sans ce fichier, la version release retombe sur la clé de debug (builds locaux seulement).
+val keystoreFile = rootProject.file("key.properties")
+val keystoreProps = Properties()
+if (keystoreFile.exists()) {
+    keystoreFile.inputStream().use { keystoreProps.load(it) }
 }
 
 android {
@@ -27,14 +37,6 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-    }
-
-    // Clé de signature de production : lue dans android/key.properties (jamais commité).
-    // Sans ce fichier, la version release retombe sur la clé de debug (builds locaux seulement).
-    val keystoreProps = java.util.Properties()
-    val keystoreFile = rootProject.file("key.properties")
-    if (keystoreFile.exists()) {
-        keystoreFile.inputStream().use { keystoreProps.load(it) }
     }
 
     signingConfigs {
