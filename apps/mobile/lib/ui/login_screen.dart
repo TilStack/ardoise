@@ -50,6 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final merchant = r['merchant'] as Map;
       final shop = merchant['shopName'] as String?;
       if (shop != null) await repo.setShopName(shop);
+      repo.noteProfileMismatch(merchant['profileType'] as String?);
       await repo.setProfileFromServer(
         merchant['profileType'] as String?,
         phone: merchant['phone'] as String?,

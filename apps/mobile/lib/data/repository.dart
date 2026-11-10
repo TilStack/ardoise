@@ -114,6 +114,29 @@ class ArdoiseRepository extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Message à afficher une fois après la connexion quand le profil choisi à l'accueil
+  /// diffère de celui déjà enregistré pour ce numéro (le profil du numéro l'emporte).
+  String? profileNotice;
+  void noteProfileMismatch(String? serverType) {
+    final chosen = welcomeChoice;
+    if (serverType == null ||
+        (chosen != 'MERCHANT' && chosen != 'PERSONAL') ||
+        chosen == serverType) {
+      return;
+    }
+    final name = serverType == 'PERSONAL'
+        ? 'Particulier (prêts)'
+        : 'Commerçant (boutique)';
+    profileNotice =
+        'Ce numéro est déjà enregistré en profil $name : c’est celui qui est utilisé.';
+  }
+
+  String? takeProfileNotice() {
+    final n = profileNotice;
+    profileNotice = null;
+    return n;
+  }
+
   Vocab get vocab => Vocab(personal: isPersonal);
   int pendingCount = 0;
   bool online = true;

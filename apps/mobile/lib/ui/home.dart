@@ -23,9 +23,16 @@ class _HomeShellState extends State<HomeShell> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => context.read<ArdoiseRepository>().sync(),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final repo = context.read<ArdoiseRepository>();
+      final notice = repo.takeProfileNotice();
+      if (notice != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(notice), duration: const Duration(seconds: 6)),
+        );
+      }
+      repo.sync();
+    });
   }
 
   @override
