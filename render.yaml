@@ -7,7 +7,7 @@ services:
     runtime: docker
     dockerfilePath: ./Dockerfile
     plan: free
-    healthCheckPath: /health
+    healthCheckPath: /health/ping
     envVars:
       # Base PostgreSQL (ex. Neon) : adresse de connexion fournie par le fournisseur.
       - key: DATABASE_URL
@@ -30,5 +30,7 @@ services:
       # Numéros des testeurs avec leur code fixe : +237XXXXXXXXX:123456,+237YYYYYYYYY:654321
       - key: OTP_TEST_NUMBERS
         sync: false
+      # Test fermé : tâches périodiques coupées pour laisser la base Neon se mettre en veille.
+      # Passer à "true" avant l'ouverture au public (rattrapage des paiements, relances).
       - key: ENABLE_JOBS
-        value: "true"
+        value: "false"

@@ -14,7 +14,8 @@ PostgreSQL 16. Elle fonctionne chez n'importe quel hébergeur qui sait lancer un
    (`pk_test_…`) et `OTP_TEST_NUMBERS` (testeurs). `JWT_SECRET` et `WEBHOOK_SECRET` sont générés.
 3. Une fois déployé, ouvrir `https://<nom>.onrender.com/health`. Si le nom n'est pas
    `ardoise-api`, corriger `PUBLIC_PAY_URL`.
-4. **UptimeRobot** (gratuit) : surveiller `/health` toutes les 5 minutes. Sans cela, l'offre
+4. **UptimeRobot** (gratuit) : surveiller `/health/ping` (et **pas** `/health`, qui interroge la
+   base et l'empêcherait de se mettre en veille) toutes les 5 minutes. Sans cela, l'offre
    gratuite de Render met l'API en veille après 15 minutes d'inactivité : le premier appel
    prend alors une minute et l'app affiche « Le serveur ne répond pas ». Les tâches de
    rattrapage des paiements ne tournent pas non plus pendant la veille.
