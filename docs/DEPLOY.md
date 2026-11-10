@@ -51,12 +51,32 @@ Compiler avec l'adresse de production :
 
     flutter build appbundle --release --dart-define=API_URL=https://<votre-adresse>
 
-## 6. Envoi de SMS : point bloquant
+## 6. Codes de connexion (SMS)
 
-Le seul envoi de SMS actuel est `console`, qui écrit le code dans les logs. En production,
-personne ne recevrait son code de connexion. Il faut brancher un vrai fournisseur (Africa's
-Talking, Orange, Twilio, etc.) dans `apps/api/src/auth/auth.ts` (classe `SmsSender`) avant
-l'ouverture au public.
+L'app se connecte par numéro de téléphone + code à 6 chiffres. En production, l'API **refuse
+de démarrer** s'il n'y a aucun moyen d'envoyer ou d'accepter un code. Deux mécanismes :
+
+**a) Numéros de test à code fixe (gratuit)** — phase de test fermé Google, relecteur Google :
+
+    OTP_TEST_NUMBERS=+237600000001:123456,+237600000002:654321
+
+Ces numéros se connectent avec le code indiqué, sans SMS. Les autres numéros ne reçoivent
+rien tant qu'aucun fournisseur SMS n'est configuré (le code n'est alors pas écrit dans les
+logs). N'y mettre que des numéros de testeurs, avec des codes que vous changez régulièrement.
+
+**b) Vrai envoi de SMS (Africa's Talking)** — pour l'ouverture au public :
+
+    SMS_PROVIDER=africastalking
+    AT_USERNAME=<identifiant du compte>
+    AT_API_KEY=<clé API>
+    AT_SENDER_ID=<nom d'expéditeur, optionnel et soumis à validation>
+
+L'adaptateur est écrit d'après la documentation du fournisseur et testé avec des réponses
+simulées : **valider avec un premier envoi réel** (compte de test du fournisseur, variable
+`AT_BASE_URL` pour son adresse sandbox) avant l'ouverture au public.
+
+**Piste ultérieure :** code par e-mail (offres gratuites des services d'e-mail), à ajouter
+comme second moyen de connexion.
 
 ## 7. Base de données
 

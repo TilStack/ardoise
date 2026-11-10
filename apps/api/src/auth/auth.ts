@@ -11,6 +11,7 @@ import {
   Logger,
   Module,
   Post,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
@@ -31,10 +32,54 @@ export abstract class SmsSender {
 export class ConsoleSmsSender extends SmsSender {
   private readonly log = new Logger('SMS');
   readonly outbox: Array<{ phone: string; text: string }> = [];
+  /** quiet : en production le contenu (le code) n'est jamais écrit dans les logs. */
+  constructor(private readonly quiet = false) {
+    super();
+  }
   async send(phone: string, text: string) {
     this.outbox.push({ phone, text });
-    this.log.log(`→ ${phone} : ${text}`);
+    this.log.log(this.quiet ? `SMS non envoyé à ${phone} (aucun fournisseur SMS configuré)` : `→ ${phone} : ${text}`);
   }
+}
+
+/**
+ * Africa's Talking (https://developers.africastalking.com) : POST /version1/messaging.
+ * À valider avec un premier envoi réel sur un compte de test avant la mise en production.
+ */
+export class AfricasTalkingSmsSender extends SmsSender {
+  constructor(
+    private readonly cfg: AppConfig['africasTalking'],
+    private readonly fetchImpl: typeof fetch = fetch,
+  ) {
+    super();
+  }
+  async send(phone: string, text: string) {
+    const body = new URLSearchParams({ username: this.cfg.username, to: phone, message: text });
+    if (this.cfg.senderId) body.set('from', this.cfg.senderId);
+    const res = await this.fetchImpl(`${this.cfg.baseUrl}/version1/messaging`, {
+      method: 'POST',
+      headers: {
+        apiKey: this.cfg.apiKey,
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body,
+    });
+    if (!res.ok) throw new Error(`Africa's Talking HTTP ${res.status}`);
+    const json = (await res.json()) as {
+      SMSMessageData?: { Recipients?: Array<{ statusCode?: number; status?: string }> };
+    };
+    const r = json.SMSMessageData?.Recipients?.[0];
+    // 100 = traité, 101 = envoyé, 102 = en file d'attente
+    if (!r || ![100, 101, 102].includes(Number(r.statusCode))) {
+      throw new Error(`Africa's Talking : envoi refusé (${r?.status ?? 'réponse vide'})`);
+    }
+  }
+}
+
+export function smsSenderFor(cfg: AppConfig): SmsSender {
+  if (cfg.smsProvider === 'africastalking') return new AfricasTalkingSmsSender(cfg.africasTalking);
+  return new ConsoleSmsSender(process.env.NODE_ENV === 'production');
 }
 
 // ---------- OTP ----------
@@ -83,11 +128,22 @@ export class AuthService {
     if (last && Date.now() - last.createdAt.getTime() < OTP_RESEND_COOLDOWN_MS) {
       throw new BadRequestException('Patientez une minute avant de redemander un code');
     }
-    const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
-    await this.prisma.otpChallenge.create({
+    // Numéro de test : code fixe défini par l'exploitant, aucun SMS envoyé.
+    const fixed = this.cfg.otpTestNumbers[phone];
+    const code = fixed ?? String(randomInt(0, 1_000_000)).padStart(6, '0');
+    const challenge = await this.prisma.otpChallenge.create({
       data: { phone, codeHash: sha256(`${phone}:${code}`), expiresAt: new Date(Date.now() + OTP_TTL_MS) },
     });
-    await this.sms.send(phone, `L'Ardoise : votre code est ${code}. Il expire dans 5 minutes.`);
+    if (!fixed) {
+      try {
+        await this.sms.send(phone, `L'Ardoise : votre code est ${code}. Il expire dans 5 minutes.`);
+      } catch (e) {
+        // On libère le délai d'attente : l'utilisateur peut réessayer tout de suite.
+        await this.prisma.otpChallenge.delete({ where: { id: challenge.id } });
+        Logger.error(`Envoi du SMS impossible : ${(e as Error).message}`, 'SMS');
+        throw new ServiceUnavailableException('Impossible d’envoyer le SMS pour le moment. Réessayez dans un instant.');
+      }
+    }
     return { phone, expiresInSeconds: OTP_TTL_MS / 1000, ...(this.cfg.otpDevEcho ? { devCode: code } : {}) };
   }
 
@@ -158,7 +214,7 @@ export const MerchantId = createParamDecorator((_: unknown, ctx: ExecutionContex
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtGuard, { provide: SmsSender, useClass: ConsoleSmsSender }],
+  providers: [AuthService, JwtGuard, { provide: SmsSender, inject: [APP_CONFIG], useFactory: smsSenderFor }],
   exports: [JwtGuard, JwtModule, SmsSender],
 })
 export class AuthModule {}

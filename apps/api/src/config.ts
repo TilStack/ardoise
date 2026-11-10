@@ -6,7 +6,10 @@ export interface AppConfig {
   paymentProvider: 'sandbox' | 'notchpay';
   webhookSecret: string;
   notchpay: { publicKey: string; privateKey?: string; webhookHeader: string };
-  smsProvider: 'console';
+  smsProvider: 'console' | 'africastalking';
+  africasTalking: { username: string; apiKey: string; senderId?: string; baseUrl: string };
+  /** Numéros de test : connexion avec un code fixe, sans SMS (phase de test fermé, relecture Google). */
+  otpTestNumbers: Record<string, string>;
   otpDevEcho: boolean;
   enableJobs: boolean;
 }
@@ -17,6 +20,19 @@ function required(name: string): string {
   return v;
 }
 
+/** « +237600000001:123456,+237600000002:654321 » → { '+237600000001': '123456', … } */
+export function parseTestNumbers(raw: string | undefined): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const part of (raw ?? '').split(',').map((s) => s.trim()).filter(Boolean)) {
+    const [phone, code] = part.split(':').map((s) => s.trim());
+    if (!/^\+237\d{9}$/.test(phone ?? '') || !/^\d{6}$/.test(code ?? '')) {
+      throw new Error(`OTP_TEST_NUMBERS : entrée invalide « ${part} » (attendu +237XXXXXXXXX:123456)`);
+    }
+    out[phone] = code;
+  }
+  return out;
+}
+
 export function loadConfig(): AppConfig {
   const isProd = process.env.NODE_ENV === 'production';
   const jwtSecret = required('JWT_SECRET');
@@ -25,6 +41,21 @@ export function loadConfig(): AppConfig {
   if (isProd && paymentProvider === 'sandbox') throw new Error('PAYMENT_PROVIDER=sandbox interdit en production');
   const otpDevEcho = process.env.OTP_DEV_ECHO === 'true';
   if (isProd && otpDevEcho) throw new Error('OTP_DEV_ECHO interdit en production');
+
+  const smsProvider = (process.env.SMS_PROVIDER ?? 'console') as AppConfig['smsProvider'];
+  if (smsProvider !== 'console' && smsProvider !== 'africastalking') {
+    throw new Error(`SMS_PROVIDER inconnu : ${smsProvider} (console | africastalking)`);
+  }
+  const otpTestNumbers = parseTestNumbers(process.env.OTP_TEST_NUMBERS);
+  if (isProd && smsProvider === 'console' && Object.keys(otpTestNumbers).length === 0) {
+    throw new Error(
+      'Aucun moyen d’envoyer les codes de connexion en production : définir SMS_PROVIDER=africastalking ou OTP_TEST_NUMBERS',
+    );
+  }
+  if (smsProvider === 'africastalking') {
+    required('AT_USERNAME');
+    required('AT_API_KEY');
+  }
 
   return {
     databaseUrl: required('DATABASE_URL'),
@@ -38,7 +69,14 @@ export function loadConfig(): AppConfig {
       privateKey: process.env.NOTCHPAY_PRIVATE_KEY || undefined,
       webhookHeader: process.env.NOTCHPAY_WEBHOOK_HEADER ?? 'x-notch-signature',
     },
-    smsProvider: 'console',
+    smsProvider,
+    africasTalking: {
+      username: process.env.AT_USERNAME ?? '',
+      apiKey: process.env.AT_API_KEY ?? '',
+      senderId: process.env.AT_SENDER_ID || undefined,
+      baseUrl: process.env.AT_BASE_URL ?? 'https://api.africastalking.com',
+    },
+    otpTestNumbers,
     otpDevEcho,
     enableJobs: process.env.ENABLE_JOBS === 'true',
   };

@@ -5,4 +5,5 @@ process.env.WEBHOOK_SECRET = 'test-webhook-secret';
 process.env.PAYMENT_PROVIDER = 'sandbox';
 process.env.PUBLIC_PAY_URL = 'https://pay.test/p';
 process.env.OTP_DEV_ECHO = 'true';
+process.env.OTP_TEST_NUMBERS = '+237677000555:424242';
 process.env.ENABLE_JOBS = 'false';
