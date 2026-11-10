@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="512" height="512">
+  <!-- Fond orange (icône d'application) -->
+  <rect width="512" height="512" fill="#EA580C"/>
+  <!-- Cadre de l'ardoise -->
+  <rect x="160" y="180" width="704" height="664" rx="72" fill="#FFF7ED"/>
+  <!-- Surface de l'ardoise -->
+  <rect x="192" y="212" width="640" height="600" rx="48" fill="#1F2A33"/>
+  <!-- « A » à la craie -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="46">
+    <path d="M392 632 L512 336 L632 632" stroke="#F8FAFC"/>
+    <path d="M424 548 L600 548" stroke="#FB923C" stroke-width="36" stroke-linecap="butt"/>
+  </g>
+  <!-- Traits de compte (4 barres + 1 barrée) -->
+  <g fill="none" stroke="#F8FAFC" stroke-linecap="round" stroke-width="20" opacity="0.92">
+    <path d="M404 690 L404 764"/>
+    <path d="M452 690 L452 764"/>
+    <path d="M500 690 L500 764"/>
+    <path d="M548 690 L548 764"/>
+    <path d="M384 748 L576 706" stroke="#FB923C"/>
+  </g>
+</svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 500" width="1024" height="500">
+  <rect width="1024" height="500" fill="#EA580C"/>
+  <!-- Ardoise -->
+  <g transform="translate(70 60) scale(0.64)">
+    <rect x="0" y="0" width="704" height="664" rx="72" fill="#FFF7ED"/>
+    <rect x="32" y="32" width="640" height="600" rx="48" fill="#1F2A33"/>
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="46">
+      <path d="M232 452 L352 156 L472 452" stroke="#F8FAFC"/>
+      <path d="M264 368 L440 368" stroke="#FB923C" stroke-width="36" stroke-linecap="butt"/>
+    </g>
+    <g fill="none" stroke="#F8FAFC" stroke-linecap="round" stroke-width="20" opacity="0.92">
+      <path d="M244 510 L244 584"/><path d="M292 510 L292 584"/>
+      <path d="M340 510 L340 584"/><path d="M388 510 L388 584"/>
+      <path d="M224 568 L416 526" stroke="#FB923C"/>
+    </g>
+  </g>
+  <text x="560" y="230" font-family="Segoe UI, Arial, sans-serif" font-weight="800" font-size="92" fill="#FFF7ED">Ardoise</text>
+  <text x="562" y="292" font-family="Segoe UI, Arial, sans-serif" font-weight="600" font-size="34" fill="#FFF7ED">Votre carnet de dettes,</text>
+  <text x="562" y="336" font-family="Segoe UI, Arial, sans-serif" font-weight="600" font-size="34" fill="#FFF7ED">sans le carnet.</text>
+</svg>
