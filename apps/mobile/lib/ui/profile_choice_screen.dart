@@ -114,7 +114,7 @@ class _ProfileChoiceScreenState extends State<ProfileChoiceScreen> {
                 personal
                     ? 'Affiché sur la page de paiement que reçoivent vos proches.'
                     : 'Affiché sur les liens et reçus envoyés à vos clients.',
-                style: const TextStyle(color: AppColors.muted, fontSize: 12),
+                style: TextStyle(color: context.mutedColor, fontSize: 12),
               ),
             ],
             if (_error != null)

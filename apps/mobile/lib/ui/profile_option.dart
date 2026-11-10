@@ -36,7 +36,7 @@ class ProfileOption extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 30, color: AppColors.slate),
+            Icon(icon, size: 30, color: context.iconInk),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -52,7 +52,7 @@ class ProfileOption extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(color: AppColors.muted, height: 1.3),
+                    style: TextStyle(color: context.mutedColor, height: 1.3),
                   ),
                 ],
               ),

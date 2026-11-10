@@ -112,9 +112,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Notez ce qu’on vous doit en 3 secondes. Ils paient par MoMo ou Orange Money, même en plusieurs fois.',
-              style: TextStyle(color: AppColors.muted, height: 1.5),
+              style: TextStyle(color: context.mutedColor, height: 1.5),
             ),
             const SizedBox(height: 24),
             if (!codeStep) ...[

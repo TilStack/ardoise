@@ -44,6 +44,12 @@ extension ThemeColors on BuildContext {
 
   /// Texte principal.
   Color get inkColor => isDark ? AppColors.darkInk : AppColors.ink;
+
+  /// Texte secondaire, lisible sur fond clair comme sombre.
+  Color get mutedColor => isDark ? const Color(0xFFA3ADB3) : AppColors.muted;
+
+  /// Icônes de structure (le gris ardoise disparaît sur fond sombre).
+  Color get iconInk => isDark ? AppColors.chalk : AppColors.slate;
 }
 
 ThemeData buildTheme({String? fontFamily, bool dark = false}) {
