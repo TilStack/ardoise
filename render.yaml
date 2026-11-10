@@ -26,7 +26,7 @@ services:
         sync: false
       # Adresse publique de l'API + /p. À corriger si Render attribue un autre nom.
       - key: PUBLIC_PAY_URL
-        value: https://ardoise-api.onrender.com/p
+        value: https://ardoise-api-nf2c.onrender.com/p
       # Numéros des testeurs avec leur code fixe : +237XXXXXXXXX:123456,+237YYYYYYYYY:654321
       - key: OTP_TEST_NUMBERS
         sync: false
