@@ -77,6 +77,7 @@ describe('Configuration des SMS en production', () => {
       ...saved,
       NODE_ENV: 'production',
       JWT_SECRET: 'x'.repeat(40),
+      WEBHOOK_SECRET: 'hsk_prod_secret_de_test_unitaire',
       PAYMENT_PROVIDER: 'notchpay',
       OTP_DEV_ECHO: undefined,
       OTP_TEST_NUMBERS: undefined,
