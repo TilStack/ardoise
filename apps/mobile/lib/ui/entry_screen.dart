@@ -205,7 +205,7 @@ class _EntryScreenState extends State<EntryScreen> {
             ),
             Text(
               '${widget.customer.name} · doit déjà ${formatAmount(widget.customer.balance)}',
-              style: const TextStyle(fontSize: 13, color: AppColors.muted),
+              style: TextStyle(fontSize: 13, color: context.mutedColor),
             ),
           ],
         ),

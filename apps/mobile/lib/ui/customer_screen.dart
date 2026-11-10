@@ -138,7 +138,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
             ),
             Text(
               '+237 ${displayPhone(c.phone)}${c.operator != null ? ' · ${c.operator}' : ''}',
-              style: const TextStyle(fontSize: 13, color: AppColors.muted),
+              style: TextStyle(fontSize: 13, color: context.mutedColor),
             ),
           ],
         ),
@@ -218,9 +218,9 @@ class _CustomerScreenState extends State<CustomerScreen> {
               label: const Text('Envoyer le lien de paiement'),
             ),
             const SizedBox(height: 20),
-            const Row(
+            Row(
               children: [
-                Expanded(
+                const Expanded(
                   child: Text(
                     'Historique',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
@@ -228,7 +228,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
                 ),
                 Text(
                   'Rien n’est jamais effacé',
-                  style: TextStyle(fontSize: 12, color: AppColors.muted),
+                  style: TextStyle(fontSize: 12, color: context.mutedColor),
                 ),
               ],
             ),
@@ -252,20 +252,20 @@ class _CustomerScreenState extends State<CustomerScreen> {
                   );
                 }
                 if (snap.hasError) {
-                  return const AppCard(
+                  return AppCard(
                     child: Text(
                       'Historique disponible une fois connecté.',
-                      style: TextStyle(color: AppColors.muted),
+                      style: TextStyle(color: context.mutedColor),
                     ),
                   );
                 }
                 final history = (snap.data!['history'] as List)
                     .cast<Map<String, dynamic>>();
                 if (history.isEmpty) {
-                  return const AppCard(
+                  return AppCard(
                     child: Text(
                       'Aucune opération.',
-                      style: TextStyle(color: AppColors.muted),
+                      style: TextStyle(color: context.mutedColor),
                     ),
                   );
                 }
@@ -379,7 +379,7 @@ class _HistoryTile extends StatelessWidget {
       ),
       _ => (
         Icons.undo,
-        AppColors.muted,
+        context.mutedColor,
         AppColors.field,
         'Annulation · ${h['label'] ?? ''}',
       ),
@@ -410,7 +410,7 @@ class _HistoryTile extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       decoration: reversed ? TextDecoration.lineThrough : null,
-                      color: reversed ? AppColors.muted : null,
+                      color: reversed ? context.mutedColor : null,
                     ),
                   ),
                   Text(
@@ -420,9 +420,9 @@ class _HistoryTile extends StatelessWidget {
                         'Reçu n° ${h['receiptNumber']}',
                       if (reversed) 'annulée',
                     ].join(' · '),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.muted,
+                      color: context.mutedColor,
                     ),
                   ),
                 ],
@@ -435,7 +435,7 @@ class _HistoryTile extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.w700,
                 color: reversed || signed == 0
-                    ? AppColors.muted
+                    ? context.mutedColor
                     : signed > 0
                     ? AppColors.red
                     : AppColors.green,

@@ -101,7 +101,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
             AppCard(
               child: Text(
                 _error ?? 'Indisponible',
-                style: const TextStyle(color: AppColors.muted),
+                style: TextStyle(color: context.mutedColor),
               ),
             )
           else ...[
@@ -142,7 +142,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
         _Tab.paid => 'Pas encore de paiement après relance.',
       };
       return AppCard(
-        child: Text(text, style: const TextStyle(color: AppColors.muted)),
+        child: Text(text, style: TextStyle(color: context.mutedColor)),
       );
     }
     return AppCard(
@@ -285,8 +285,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
                   const SizedBox(height: 6),
                   Text(
                     context.read<ArdoiseRepository>().vocab.noWhatsapp,
-                    style: const TextStyle(
-                      color: AppColors.muted,
+                    style: TextStyle(
+                      color: context.mutedColor,
                       fontSize: 12,
                     ),
                   ),
@@ -341,8 +341,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
                     context.read<ArdoiseRepository>().isPersonal
                         ? 'Variables : {prénom} {montant} {lien}'
                         : 'Variables : {prénom} {montant} {boutique} {lien}',
-                    style: const TextStyle(
-                      color: AppColors.muted,
+                    style: TextStyle(
+                      color: context.mutedColor,
                       fontSize: 12,
                     ),
                   ),
@@ -437,7 +437,7 @@ class _Summary extends StatelessWidget {
               s.enabled
                   ? Icons.notifications_active_outlined
                   : Icons.notifications_off_outlined,
-              color: s.enabled ? const Color(0xFFC2410C) : AppColors.muted,
+              color: s.enabled ? const Color(0xFFC2410C) : context.mutedColor,
               size: 20,
             ),
           ),
@@ -458,7 +458,7 @@ class _Summary extends StatelessWidget {
                   s.enabled
                       ? 'Envoi à ${s.sendHour} h · max 1 message / 48 h'
                       : context.read<ArdoiseRepository>().vocab.remindersOff,
-                  style: const TextStyle(color: AppColors.muted, fontSize: 12),
+                  style: TextStyle(color: context.mutedColor, fontSize: 12),
                 ),
                 if (data.recovered > 0) ...[
                   const SizedBox(height: 4),
@@ -528,7 +528,7 @@ class _Tabs extends StatelessWidget {
                         children: [
                           TextSpan(
                             text: '${counts[t] ?? 0}',
-                            style: const TextStyle(color: AppColors.muted),
+                            style: TextStyle(color: context.mutedColor),
                           ),
                         ],
                       ),
@@ -620,7 +620,7 @@ class _ReminderTile extends StatelessWidget {
                 Text(
                   '${fcfa(r.amount)} · J+${r.step} · $channel'
                   '${r.fellBackToSms ? ' (repli)' : ''} · ${_when(at)}',
-                  style: const TextStyle(color: AppColors.muted, fontSize: 12),
+                  style: TextStyle(color: context.mutedColor, fontSize: 12),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
                 ),
@@ -657,13 +657,13 @@ class _TemplateCard extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
-              const Icon(Icons.edit_outlined, size: 18, color: AppColors.muted),
+              Icon(Icons.edit_outlined, size: 18, color: context.mutedColor),
             ],
           ),
           const SizedBox(height: 6),
           Text(
             '« ${settings.template} »',
-            style: const TextStyle(color: AppColors.muted, fontSize: 13),
+            style: TextStyle(color: context.mutedColor, fontSize: 13),
           ),
         ],
       ),

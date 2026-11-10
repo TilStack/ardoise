@@ -147,9 +147,9 @@ class DashboardScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Bonjour',
-                      style: TextStyle(color: AppColors.muted, fontSize: 13),
+                      style: TextStyle(color: context.mutedColor, fontSize: 13),
                     ),
                     Text(
                       r.shopName ?? r.vocab.homeTitle,
@@ -219,7 +219,7 @@ class DashboardScreen extends StatelessWidget {
             AppCard(
               child: Text(
                 r.vocab.noLate,
-                style: const TextStyle(color: AppColors.muted),
+                style: TextStyle(color: context.mutedColor),
               ),
             )
           else
@@ -439,8 +439,8 @@ class CustomerTile extends StatelessWidget {
                     c.pendingDelta != 0 || !c.synced
                         ? 'En attente de synchro'
                         : displayPhone(c.phone),
-                    style: const TextStyle(
-                      color: AppColors.muted,
+                    style: TextStyle(
+                      color: context.mutedColor,
                       fontSize: 12,
                     ),
                   ),
@@ -545,7 +545,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
           AppCard(
             child: Text(
               r.vocab.emptyList,
-              style: const TextStyle(color: AppColors.muted),
+              style: TextStyle(color: context.mutedColor),
             ),
           )
         else
@@ -730,8 +730,8 @@ class ProfileScreen extends StatelessWidget {
                         if (r.phone != null)
                           Text(
                             '+237 ${displayPhone(r.phone!)}',
-                            style: const TextStyle(
-                              color: AppColors.muted,
+                            style: TextStyle(
+                              color: context.mutedColor,
                               fontSize: 13,
                             ),
                           ),
@@ -753,7 +753,7 @@ class ProfileScreen extends StatelessWidget {
                         ? Icons.handshake_outlined
                         : Icons.storefront_outlined,
                     size: 18,
-                    color: AppColors.muted,
+                    color: context.mutedColor,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -769,7 +769,7 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 r.vocab.nameHelp,
-                style: const TextStyle(color: AppColors.muted, fontSize: 12),
+                style: TextStyle(color: context.mutedColor, fontSize: 12),
               ),
             ],
           ),
