@@ -3,6 +3,28 @@
 L'API se déploie comme une image Docker (voir `Dockerfile` à la racine) avec une base
 PostgreSQL 16. Elle fonctionne chez n'importe quel hébergeur qui sait lancer un conteneur.
 
+## 0. Parcours gratuit pour le test fermé (Render + Neon + UptimeRobot)
+
+À vérifier sur leurs sites : les offres gratuites changent.
+
+1. **Neon** (base PostgreSQL gratuite) : créer un projet PostgreSQL 16 et copier l'adresse de
+   connexion (`postgresql://…?sslmode=require`).
+2. **Render** : se connecter avec GitHub, *New > Blueprint*, choisir ce dépôt (le fichier
+   `render.yaml` décrit le service). Renseigner `DATABASE_URL` (Neon), `NOTCHPAY_PUBLIC_KEY`
+   (`pk_test_…`) et `OTP_TEST_NUMBERS` (testeurs). `JWT_SECRET` et `WEBHOOK_SECRET` sont générés.
+3. Une fois déployé, ouvrir `https://<nom>.onrender.com/health`. Si le nom n'est pas
+   `ardoise-api`, corriger `PUBLIC_PAY_URL`.
+4. **UptimeRobot** (gratuit) : surveiller `/health` toutes les 5 minutes. Sans cela, l'offre
+   gratuite de Render met l'API en veille après 15 minutes d'inactivité : le premier appel
+   prend alors une minute et l'app affiche « Le serveur ne répond pas ». Les tâches de
+   rattrapage des paiements ne tournent pas non plus pendant la veille.
+5. Créer le webhook NotchPay sur `https://<nom>.onrender.com/webhooks/payments`, puis remplacer
+   `WEBHOOK_SECRET` par son secret `hsk_…`.
+
+**Limites de ce parcours :** adapté à quelques dizaines de testeurs, pas à de vrais paiements
+en volume. Avant l'ouverture au public, passer à un plan payant (ou un petit serveur) et
+sauvegarder la base.
+
 ## 1. Ce qu'il faut
 
 | Élément | Rôle |
